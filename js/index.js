@@ -49,23 +49,7 @@ ScrollReveal().reveal(".container__right .tent-1", {
   duration: 1000,
   delay: 4000,
 });
-ScrollReveal().reveal(".container__right .tent-2", {
-  duration: 1000,
-  delay: 4500,
-});
 
-ScrollReveal().reveal(".location", {
-  ...scrollRevealOption,
-  origin: "left",
-  delay: 5000,
-});
-
-ScrollReveal().reveal(".socials span", {
-  ...scrollRevealOption,
-  origin: "top",
-  delay: 5500,
-  interval: 500,
-});
 window.addEventListener('scroll', reveal);
 
 function reveal() {
@@ -82,6 +66,23 @@ function reveal() {
             reveals[i].classList.remove('active');
         }
     }
+}
+const loginBtn = document.getElementById("login-btn");
+const modal = document.getElementById("login-modal");
+const closeModal = document.querySelector(".close");
+
+loginBtn.addEventListener("click", () => {
+  modal.style.display = "block";
+});
+
+closeModal.addEventListener("click", () => {
+  modal.style.display = "none";
+});
+
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
 }
 
 // Initialize reveal on page load

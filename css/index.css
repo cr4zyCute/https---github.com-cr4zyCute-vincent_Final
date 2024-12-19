@@ -90,7 +90,27 @@ nav {
   color: var(--white);
   cursor: pointer;
 }
+.nav__links a:hover {
+    color: var(--white);
+}
 
+.nav__login {
+     margin-left: 15%;  
+}
+
+.btn {
+    background-color: var(--primary-color); 
+    color: var(--white); 
+    border: none;
+    padding: 0.5rem 1rem; 
+    border-radius: 5px; 
+    cursor: pointer; 
+    transition: background-color 0.3s;
+}
+
+.btn:hover {
+    background-color: rgb(4, 153, 239); 
+}
 .nav__links {
   position: absolute;
   top: 60px;
@@ -135,21 +155,6 @@ nav {
   display: grid;
   gap: 2rem;
   overflow: hidden;
-}
-.nav__login .btn {
-    background-color: var(--primary-color); /* Change to your desired color */
-    color: var(--white); /* Text color */
-    border: none; /* Remove default border */
-    padding: 0.5rem 1rem; /* Add padding */
-    border-radius: 5px; /* Rounded corners */
-    font-size: 1rem; /* Adjust font size */
-    cursor: pointer; /* Change cursor on hover */
-    transition: background-color 0.3s, transform 0.2s; /* Smooth transition */
-}
-
-.nav__login .btn:hover {
-    background-color: var(--secondary-color); /* Change color on hover */
-    transform: scale(1.05); /* Slightly enlarge on hover */
 }
 
 
@@ -286,6 +291,41 @@ nav {
     justify-content: space-between;
     gap: 2rem;
   }
+
+  .modal {
+  display: none;
+  position: fixed; 
+  z-index: 1; 
+  left: 0;
+  top: 0;
+  width: 100%; 
+  height: 100%; 
+  overflow: auto; 
+  background-color: rgba(0, 0, 0, 0.5); 
+}
+
+.modal-content{
+  margin: 15% auto; 
+  padding: 20px;
+  width: 80%; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
 
   .nav__header {
     flex: 1;
@@ -428,3 +468,119 @@ nav {
     height: auto;
     border-radius: 5px; 
 }
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 40px 30px;
+            box-shadow: 0px 15px 30px rgba(0, 0, 0, 0.2);
+            width: 360px;
+            text-align: center;
+            position: relative;
+        }
+
+        .profile-icon {
+            background: #294b81;
+            width: 105px;
+            height: 105px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: -60px auto 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .profile-icon img {
+            width: 100px;
+            height: 100px;
+        }
+
+        .login-container input {
+            width: 100%;
+            max-width: 300px; 
+            padding: 15px;
+            margin: 15px auto; 
+            border: none;
+            outline: none;
+            border-radius: 5px;
+            background: #f0f3fc;
+            font-size: 16px;
+            box-shadow: inset 0px 2px 5px rgba(0, 0, 0, 0.1);
+            display: block; /* Ensure block display for centering */
+        }
+
+        .login-container input::placeholder {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .register__here {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .register__here a {
+            color: #ab0000;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .register__here a:hover {
+            text-decoration: underline;
+        }
+
+        .login-container button {
+            margin-top: 20px;
+            width: 100%;
+            padding: 12px;
+            background: #294b81;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .login-container button:hover {
+            background: #3a609a;
+            box-shadow: 0px 5px 15px rgba(42, 75, 129, 0.5);
+        }
+
+        .login-container label {
+            display: flex;
+            align-items: center;
+        }
+
+        .login-container label input {
+            margin-right: 5px;
+        }
+
+        .login-button-container {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 50px;
+            background: #294b81;
+            border-radius: 25px;
+            box-shadow: 0px 10px 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+
+        .login-button-container:hover {
+            background: #3a609a;
+            transform: translateX(-50%) scale(1.05);
+        }

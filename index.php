@@ -10,35 +10,56 @@
     <title>CTU-BSIT-Home</title>
   </head>
   <body>
-    ok
-    <nav>
-      <div class="nav__header">
-            <div class="nav__logo">
+    
+   <nav>
+    <div class="nav__header">
+        <div class="nav__logo">
             <a href="#">
                 <img src="./images/bsitlogo.png" alt="Logo" class="logo">
                 BSIT
             </a>
         </div>
         <div class="nav__menu__btn" id="menu-btn">
-          <i class="ri-menu-line"></i>
+            <i class="ri-menu-line"></i>
         </div>
-      </div>
-      <ul class="nav__links" id="nav-links">
+    </div>
+    <ul class="nav__links" id="nav-links">
         <li><a href="#home">HOME</a></li>
         <li><a href="#about">ABOUT US</a></li>
         <li><a href="#footer">CONTACT</a></li>
-        <li>
-          <div class="container__login">
-         <button class="btn">Log In</button>
-       </div>
-        </li>
-      </ul>
-    </nav>
+       
+        <li class="nav__login"><button style="color: black;" id="login-btn" class="btn">Log In</button></li> 
+    </ul>
+</nav>
+
+
+
+<div id="login-modal" class="modal">
+  <div class="modal-content">
+    <div class="login-container">
+            <span class="close">&times;</span>
+              <div class="profile-icon">
+                  <img src="./images/bsitlogo.png" alt="User Icon">
+                    </div>
+                    <div class="title">Log in</div>
+                    <form>
+                        <input type="text" placeholder="Username" required>
+                        <input type="password" placeholder="Password" required>
+                        <div class="register__here">
+                            <a href="#">Register Here!!</a>
+                        </div>
+                    </form>
+                    <div class="login-button-container">
+                  LOGIN
+              </div>
+          </div>
+  </div>
+</div>
+
 
 
     <div id="home" class="container">
-      <div class="container__left">
-      </div>
+     
       <div class="container__right">
         <div class="images">
           <img src="./images/bsitlogo.png" alt="image" class="tent-1" />
@@ -85,6 +106,7 @@
         </div>
     </div>
 </section>
+
 <div id="footer">
 
 <?php 
