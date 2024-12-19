@@ -10,6 +10,7 @@
     <title>CTU-BSIT-Home</title>
   </head>
   <body>
+    ok
     <nav>
       <div class="nav__header">
             <div class="nav__logo">
