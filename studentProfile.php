@@ -1,3 +1,63 @@
+<?php
+require 'database/dbcon.php';
+session_start(); 
+
+if (!empty($_SESSION['student_id'])) {
+    $student_id = $_SESSION['student_id'];
+
+    $query = "
+        SELECT student.*, credentials.email, credentials.password
+        FROM student 
+        JOIN credentials ON student.id = credentials.student_id 
+        WHERE student.id = '$student_id'
+    ";
+    $result = mysqli_query($conn, $query);
+
+    if ($result && mysqli_num_rows($result) > 0) {
+        $student = mysqli_fetch_assoc($result);
+    } else {
+        echo "Student profile not found."; 
+        exit();
+    }
+    } else {
+        header("Location: studentProfile.php");
+        exit();
+    }
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        $firstname = mysqli_real_escape_string($conn, $_POST['firstname']);
+    $middlename = mysqli_real_escape_string($conn, $_POST['middlename']);
+    $lastname = mysqli_real_escape_string($conn, $_POST['lastname']);
+    $age = mysqli_real_escape_string($conn, $_POST['age']);
+    $gender = mysqli_real_escape_string($conn, $_POST['gender']);
+    $contact = mysqli_real_escape_string($conn, $_POST['contact']);
+    $address = mysqli_real_escape_string($conn, $_POST['address']);
+    $yearlvl = mysqli_real_escape_string($conn, $_POST['yearlvl']);
+    $section = mysqli_real_escape_string($conn, $_POST['section']);
+
+    $email = mysqli_real_escape_string($conn, $_POST['email']);
+    $password = $_POST['password'];
+        
+        $imageQueryPart = ""; 
+        $imageName = basename($_FILES['profileImage']['name']);
+        $imagePath = 'images-data/' . $imageName;
+
+$imageQueryPart = ""; 
+if (!empty($_FILES['profileImage']['name'])) {
+    $imageName = basename($_FILES['profileImage']['name']);
+    $imagePath = 'images-data/' . $imageName;
+
+    if (move_uploaded_file($_FILES['profileImage']['tmp_name'], $imagePath)) {
+        $imageQueryPart = ", student.image = '$imageName'";
+    } else {
+        echo "Failed to upload image.";
+        exit();
+    }
+}
+
+
+    }
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -37,7 +97,7 @@
     <div class="profile-container">
         <img src="./images/student.jpg" alt="Profile Image" class="profile-image">
         <div class="profile-info">
-            <h1>Lucia Alvarez</h1>
+            <h1><?php  echo htmlspecialchars($student['firstname'])?></h1>
             <h2>Photographer</h2>
             <p><strong>Age:</strong> 28</p>
             <p><strong>Education:</strong> BFA in Photography</p>
