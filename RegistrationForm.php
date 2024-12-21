@@ -1,3 +1,59 @@
+<?php
+include 'database/dbcon.php';
+
+session_start();
+
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $firstname = mysqli_real_escape_string($conn, $_POST['firstname']);
+    $middlename = mysqli_real_escape_string($conn, $_POST['middlename']);
+    $lastname = mysqli_real_escape_string($conn, $_POST['lastname']);
+    $age = mysqli_real_escape_string($conn, $_POST['age']);
+    $gender = mysqli_real_escape_string($conn, $_POST['gender']);
+    $contact = mysqli_real_escape_string($conn, $_POST['contact']);
+    $address = mysqli_real_escape_string($conn, $_POST['address']);
+    $yearlvl = mysqli_real_escape_string($conn, $_POST['yearlvl']);
+    $section = mysqli_real_escape_string($conn, $_POST['section']);
+
+    $email = mysqli_real_escape_string($conn, $_POST['email']);
+    $password = $_POST['password'];
+
+    $file_name = '';
+ if (isset($_FILES['profilePicture']) && $_FILES['profilePicture']['error'] == 0) {
+    $file_name = $_FILES['profilePicture']['name'];
+    $tempname = $_FILES['profilePicture']['tmp_name'];
+    $folder = 'images-data/' . $file_name;
+
+    if (!move_uploaded_file($tempname, $folder)) {
+        echo "Failed to upload image.";
+        exit();
+    }
+}
+    
+    $sql = "INSERT INTO student (firstname, middlename, lastname, age, gender, contact, address, image, yearlvl, section) 
+            VALUES ('$firstname', '$middlename', '$lastname', '$age', '$gender', '$contact', '$address', '$file_name', '$yearlvl', '$section')";
+
+    if (mysqli_query($conn, $sql)) {
+        $student_id = mysqli_insert_id($conn);
+
+        $credentials_sql = "INSERT INTO credentials (student_id, email, password) 
+                            VALUES ('$student_id', '$email', '$password')";
+
+        if (mysqli_query($conn, $credentials_sql)) {
+            echo "Student added successfully!";
+            header("Location: RegistrationForm.php?id=$id&update=success");
+            exit();
+        } else {
+            echo "Error in credentials: " . mysqli_error($conn);
+        }
+    } else {
+        echo "Error in student table: " . mysqli_error($conn);
+    }
+    mysqli_close($conn);
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -43,12 +99,23 @@
                         <div class="form-group">
                             <label for="age">Age:</label>
                             <input type="number" id="age" name="age">
-                            <label for="phone">Contact Number:</label>
-                            <input type="text" id="phone" name="phone">
-                             <label for="year">Year Level:</label>
-                            <input type="number" id="year" name="year">
-                            <label for="section">Section:</label>
-                            <input type="text" id="section" name="section">
+                            <label for="contact">Contact Number:</label>
+                            <input type="text" id="contact" name="contact">
+                                <label for="yearlvl">Year Level:</label>
+                                <select id="yearlvl" name="yearlvl">
+                                    <option value="First Year">First Year</option>
+                                    <option value="Second Year">Second Year</option>
+                                    <option value="Third Year">Third Year</option>
+                                    <option value="Fourth Year">Fourth Year</option>
+                                </select>
+                                <label for="section">Section:</label>
+                                <select id="section" name="section">
+                                    <option value="A">A</option>
+                                    <option value="B">B</option>
+                                    <option value="C">C</option>
+                                    <option value="D">D</option>
+                                    <option value="E">E</option>
+                                </select>
                             
                             <div class="form-group full-width">
                                 <label for="address">Address:</label>

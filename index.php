@@ -1,3 +1,36 @@
+<?php
+session_start();
+include 'database/dbcon.php';
+
+$error_message = ""; 
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
+    if (isset($_POST['email']) && isset($_POST['password'])) {
+        $email = mysqli_real_escape_string($conn, $_POST['email']);
+        $password = mysqli_real_escape_string($conn, $_POST['password']);
+
+        $email_check_sql = "SELECT * FROM credentials WHERE email = '$email'";
+        $email_check_result = mysqli_query($conn, $email_check_sql);
+
+        if (mysqli_num_rows($email_check_result) === 0) {
+            $error_message = "User does not exist!";
+        } else {
+            $user = mysqli_fetch_assoc($email_check_result);
+            if ($user['password'] === $password) {
+                $_SESSION['student_id'] = $user['student_id'];
+                $_SESSION['email'] = $user['email'];
+
+                header('Location: home.php');
+                exit();
+            } else {
+                $error_message = "Wrong password!";
+            }
+        }
+    } else {
+        $error_message = "Please fill in all fields.";
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -31,25 +64,26 @@
         <li class="nav__login"><button style="color: black;" id="login-btn" class="btn">Log In</button></li> 
     </ul>
 </nav>
-
 <div id="login-modal" class="modal">
   <div class="modal-content">
     <div class="login-container">
+      <form action="home.php" method="post">
             <span class="close">&times;</span>
               <div class="profile-icon">
                   <img src="./images/bsitlogo.png" alt="User Icon">
                     </div>
                     <div class="title">Log in</div>
-                    <form>
+
                         <input type="text" placeholder="Username" required>
                         <input type="password" placeholder="Password" required>
                         <div class="register__here">
                             <p>Dont have an account?</p><a href="RegistrationForm.php"> Register Here!!</a>
                         </div>
-                    </form>
+
                     <div class="login-button-container">
-                  LOGIN
+                   <button type="submit" name="login" class="submit" class="button">Login Now</button>
               </div>
+              </form>
           </div>
   </div>
 </div>

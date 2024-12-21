@@ -25,7 +25,7 @@ body {
     padding: 40px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-end;
     align-items: center;
     text-align: center;
 }
@@ -203,7 +203,7 @@ button {
     display: inline-block;
     width: 150px;
     height: 150px;
-    margin: 0 auto 0px;
+    margin: 0 auto 20px;
     border-radius: 50%;
     
     background-color: #e6e6e6;
@@ -220,7 +220,7 @@ button {
 
 .button-group {
     display: flex;
-    justify-content: flex-end;
+    justify-content: center; 
     align-items: center;
     gap: 10px;        
     margin-top: 20px;     
@@ -250,61 +250,3 @@ button.prev-btn i, button.next-btn i {
     pointer-events: none;
 }
 
-.edit-btn {
-    position: relative;
-    border-radius: 50%;
-    background-color: black;
-    color: red;
-    bottom: 25%;
-}
-
-
-/* Media Queries for Responsiveness */
-@media (max-width: 768px) {
-    .main-container {
-        flex-direction: column; /* Stack left and right sections */
-        width: 90%;
-    }
-
-    .left-section,
-    .right-section {
-        padding: 20px; /* Reduce padding for smaller screens */
-    }
-
-    .left-section h1 {
-        font-size: 1.5rem; /* Smaller font size */
-    }
-
-    .left-section p {
-        font-size: 1rem; /* Smaller font size */
-    }
-
-    input[type="text"],
-    input[type="email"],
-    input[type="password"],
-    input[type="file"],
-    button {
-        font-size: 0.9rem; /* Smaller button and input font */
-    }
-
-    button.prev-btn,
-    button.next-btn {
-        width: 40px; /* Smaller button size */
-        height: 40px;
-        font-size: 1rem; /* Adjust font size */
-    }
-}
-
-@media (max-width: 480px) {
-    .left-section h1 {
-        font-size: 1.2rem; /* Further reduced font size */
-    }
-
-    .left-section p {
-        font-size: 0.9rem; /* Further reduced font size */
-    }
-
-    .form-group {
-        gap: 5px; /* Reduce gap */
-    }
-}
