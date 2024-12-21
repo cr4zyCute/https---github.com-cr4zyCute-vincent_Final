@@ -1,0 +1,281 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f2f5;
+    color: #333;
+    line-height: 1.6;
+}
+
+header {
+    background: #4267B2;
+    color: #fff;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+nav .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+nav .search-bar input {
+    padding: 5px;
+    border: none;
+    border-radius: 5px;
+    outline: none;
+}
+
+nav .nav-icons a {
+    margin: 0 10px;
+    color: #fff;
+    text-decoration: none;
+}
+
+/* Container */
+.container {
+    display: flex;
+    margin: 20px;
+}
+
+/* Sidebar */
+.sidebar {
+    flex: 1;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    margin-right: 20px;
+}
+
+.sidebar ul {
+    list-style: none;
+}
+
+.sidebar ul li {
+    margin-bottom: 15px;
+}
+
+.sidebar ul li a {
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+}
+
+/* Feed */
+.feed {
+    flex: 2;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.feed .post {
+    margin-bottom: 20px;
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+/* Trending */
+.trending {
+    flex: 1;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.trending h4 {
+    margin-bottom: 15px;
+}
+
+.trending ul {
+    list-style: none;
+}
+
+.trending ul li {
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+
+.post .post-image {
+    width: 100%;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+/* Post Header */
+.post-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+/* Profile Picture Styling */
+.profile-pic {
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    margin-right: 10px;
+}
+
+/* Adjust h3 for better alignment */
+.post-header h3 {
+    margin: 0;
+    font-size: 1.2rem; /* Adjust font size as needed */
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .container {
+        flex-direction: column;
+        align-items: center;
+    }
+    .sidebar, .trending {
+        flex: unset;
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 20px;
+    }
+    .feed {
+        width: 100%;
+    }
+}
+
+/* Comments Section */
+.post .comments {
+    margin-top: 10px;
+    padding: 10px;
+    background: #f9f9f9;
+    border-radius: 5px;
+}
+
+.post .comments .comment {
+    margin-bottom: 10px;
+    padding: 5px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.post .comments .comment:last-child {
+    border-bottom: none;
+}
+
+.post .comments textarea {
+    width: 100%;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    resize: none;
+    font-family: Arial, sans-serif;
+}
+
+/* Profile Picture Styling */
+.profile-pic {
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    margin-right: 10px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Post Header */
+.post-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+/* Comments with Profile Pictures */
+.comments .comment {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+.comments .comment img {
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+}
+
+.comments .comment .comment-text {
+    background: #f0f2f5;
+    padding: 8px;
+    border-radius: 8px;
+    width: 100%;
+}
+
+/* Comment Actions */
+.comment-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+}
+
+.comment-actions button {
+    background: none;
+    border: none;
+    color: #4267B2;
+    cursor: pointer;
+}
+
+/* Comment Form */
+.comment-form {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.comment-form textarea {
+    flex: 1;
+    margin-right: 10px;
+}
+
+.comment-form .submit-comment-btn {
+    background-color: #4267B2;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    nav .search-bar {
+        width: 100%;
+        margin-top: 10px;
+    }
+    nav .nav-icons {
+        margin-top: 10px;
+    }
+    .sidebar ul li {
+        text-align: center;
+    }
+    .nav-icons a {
+        margin: 0 5px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 10px;
+    }
+    nav .logo {
+        font-size: 1.2rem;
+    }
+    .feed .post {
+        padding: 10px;
+    }
+}

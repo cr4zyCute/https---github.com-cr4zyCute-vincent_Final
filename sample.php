@@ -46,16 +46,16 @@
 
         .login-container input {
             width: 100%;
-            max-width: 300px; /* Set a max-width for better centering */
+            max-width: 300px; 
             padding: 15px;
-            margin: 15px auto; /* Center margins */
+            margin: 15px auto;
             border: none;
             outline: none;
             border-radius: 5px;
             background: #f0f3fc;
             font-size: 16px;
             box-shadow: inset 0px 2px 5px rgba(0, 0, 0, 0.1);
-            display: block; /* Ensure block display for centering */
+            display: block;
         }
 
         .login-container input::placeholder {

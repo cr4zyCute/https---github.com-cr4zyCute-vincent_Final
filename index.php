@@ -32,8 +32,6 @@
     </ul>
 </nav>
 
-
-
 <div id="login-modal" class="modal">
   <div class="modal-content">
     <div class="login-container">
@@ -46,7 +44,7 @@
                         <input type="text" placeholder="Username" required>
                         <input type="password" placeholder="Password" required>
                         <div class="register__here">
-                            <a href="#">Register Here!!</a>
+                            <p>Dont have an account?</p><a href="#"> Register Here!!</a>
                         </div>
                     </form>
                     <div class="login-button-container">

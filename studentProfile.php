@@ -8,19 +8,32 @@
     <link rel="stylesheet" href="css/studentProfile.css">
 </head>
 <body>
-        <nav class="navbar">
-        <a href="#" class="logo">BrandLogo</a>
-        <div class="nav-links">
-            <a href="#home">Home</a>
-            <a href="#about">Message</a>
-            <a href="#services">Setting</a>
+<nav class="navbar">
+    <a href="#" class="logo">CTU</a>
+    <div class="nav-links">
+        <a href="home.php">Home</a>
+        <a href="#about">Message</a>
+        <div class="dropdown">
+            <a href="#" class="dropdown-toggle">Settings</a>
+            <div class="dropdown-content">
+                <a href="#profile">Profile Settings</a>
+                <a href="index.php">Log out</a>
+            </div>
         </div>
-        <div class="nav-icons">
-            <a href="#home" title="Home"><i class="fa-solid fa-house"></i></a>
-            <a href="#message" title="Message"><i class="fa-solid fa-envelope"></i></a>
-            <a href="#services" title="Settings"><i class="fa-solid fa-gear"></i></a>
+    </div>
+    <div class="nav-icons">
+        <a href="home.php" title="Home"><i class="fa-solid fa-house"></i></a>
+        <a href="#message" title="Message"><i class="fa-solid fa-envelope"></i></a>
+        <div class="dropdown">
+            <a href="#" class="dropdown-toggle"><i class="fa-solid fa-gear"></i></a>
+            <div class="dropdown-content">
+                <a href="#profile">Profile Settings</a>
+                <a href="index.php">Log out</a>
+            </div>
         </div>
-    </nav>
+    </div>
+</nav>
+
     <div class="profile-container">
         <img src="./images/student.jpg" alt="Profile Image" class="profile-image">
         <div class="profile-info">
@@ -54,5 +67,6 @@
         navLinks.classList.toggle('show');
     });
 </script>
+<script src="./js/studentProfile.js" ></script>
 </body>
 </html>
