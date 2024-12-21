@@ -44,7 +44,7 @@
                         <input type="text" placeholder="Username" required>
                         <input type="password" placeholder="Password" required>
                         <div class="register__here">
-                            <p>Dont have an account?</p><a href="#"> Register Here!!</a>
+                            <p>Dont have an account?</p><a href="RegistrationForm.php"> Register Here!!</a>
                         </div>
                     </form>
                     <div class="login-button-container">

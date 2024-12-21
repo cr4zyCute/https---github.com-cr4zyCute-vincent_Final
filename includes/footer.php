@@ -89,17 +89,18 @@ footer{
  <footer>
     <div class="footerContainer">
         <div class="socialIcons">
-            <a href=""><i class="fa-brands fa-facebook"></i></a>
-            <a href=""><i class="fa-brands fa-instagram"></i></a>
-            <a href=""><i class="fa-brands fa-twitter"></i></a>
-            <a href=""><i class="fa-brands fa-google-plus"></i></a>
-            <a href=""><i class="fa-brands fa-youtube"></i></a>
+            <a href=""></i></a>
+            <a href=""></i></a>
+            <a href=""></i></a>
+            <a href=""></i></a>
+            <a href=""></i></a>
+       
         </div>
         <div class="footerNav">
             <ul><li><a href="#home">Home</a></li>
                 <li><a href="#about">About</a></li>
                 <li><a href="https://www.facebook.com/ctu.premier" target="_blank">Contact Us</a></li>
-                <li><a href="">Our University</a></li>
+                <li><a href="https://www.ctu.edu.ph/" target="_blank" >Our University</a></li>
             </ul>
         </div>
         
