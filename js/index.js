@@ -67,23 +67,19 @@ function reveal() {
         }
     }
 }
-const loginBtn = document.getElementById("login-btn");
 const modal = document.getElementById("login-modal");
-const closeModal = document.querySelector(".close");
+const closeModal = document.querySelector(".close"); // Select the element with the class "close"
+const loginBtn = document.getElementById("login-btn");
 
-loginBtn.addEventListener("click", () => {
+// Show modal when login button is clicked
+loginBtn.onclick = function () {
   modal.style.display = "block";
-});
+};
 
-closeModal.addEventListener("click", () => {
+// Close modal when close button is clicked
+closeModal.onclick = function () {
   modal.style.display = "none";
-});
-
-window.onclick = function(event) {
-  if (event.target == modal) {
-    modal.style.display = "none";
-  }
-}
+};
 
 // Initialize reveal on page load
 document.addEventListener('DOMContentLoaded', reveal);

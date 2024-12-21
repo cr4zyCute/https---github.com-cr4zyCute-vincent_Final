@@ -1,6 +1,6 @@
 <?php
+
 require 'database/dbcon.php';
-session_start(); 
 
 if (!empty($_SESSION['student_id'])) {
     $student_id = $_SESSION['student_id'];

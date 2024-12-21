@@ -316,8 +316,10 @@ nav {
 }
 
 .close {
-  color: #aaa;
-  float: right;
+  color: red;
+  position: relative;
+  left: 45%;
+  top: 45%;
   font-size: 28px;
   font-weight: bold;
 }
@@ -542,7 +544,7 @@ nav {
             background: #294b81;
             color: #fff;
             border: none;
-            border-radius: 5px;
+            border-radius: 5px 5px 5px 5px;
             cursor: pointer;
             font-size: 16px;
             transition: background 0.3s ease, box-shadow 0.3s ease;
