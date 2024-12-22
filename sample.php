@@ -1,157 +1,180 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Form</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: linear-gradient(to bottom right, #5661a6, #c6b9e2);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Popup Example with Caption</title>
+  <style>
+    /* General styling for the popup overlay */
+    .popup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
 
-        .login-container {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 25px;
-            padding: 40px 30px;
-            box-shadow: 0px 15px 30px rgba(0, 0, 0, 0.2);
-            width: 360px;
-            text-align: center;
-            position: relative;
-        }
+    /* Popup container */
+    .popup {
+      width: 400px;
+      background: #242526;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      color: #fff;
+      font-family: Arial, sans-serif;
+    }
 
-        .profile-icon {
-            background: #294b81;
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: -60px auto 20px;
-            position: relative;
-            z-index: 1;
-        }
+    /* Header */
+    .popup-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 18px;
+      font-weight: bold;
+    }
 
-        .profile-icon img {
-            width: 40px;
-            height: 40px;
-            filter: invert(1);
-        }
+    .popup-header button {
+      background: none;
+      border: none;
+      color: #bbb;
+      font-size: 16px;
+      cursor: pointer;
+    }
 
-        .login-container input {
-            width: 100%;
-            max-width: 300px; 
-            padding: 15px;
-            margin: 15px auto;
-            border: none;
-            outline: none;
-            border-radius: 5px;
-            background: #f0f3fc;
-            font-size: 16px;
-            box-shadow: inset 0px 2px 5px rgba(0, 0, 0, 0.1);
-            display: block;
-        }
+    /* Content */
+    .popup-content {
+      margin: 15px 0;
+    }
 
-        .login-container input::placeholder {
-            color: #666;
-            font-size: 14px;
-        }
+    /* Caption text area */
+      /* Caption text area */
+    .caption-area {
+      margin-top: 10px;
+    }
 
-        .register__here {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 14px;
-            margin-top: 10px;
-        }
+    textarea {
+      width: 94%;
+      height: 60px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: #3a3b3c;
+      color: #fff;
+      font-size: 14px;
+      resize: none;
+    }
 
-        .register__here a {
-            color: #294b81;
-            text-decoration: none;
-            font-size: 14px;
-        }
+    textarea::placeholder {
+      color: #bbb;
+    }
+    /* Add photos section */
+    .add-photos {
+      background: #3a3b3c;
+      border: 1px dashed #ccc;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      color: #ccc;
+      margin-top: 10px;
+    }
 
-        .register__here a:hover {
-            text-decoration: underline;
-        }
+    /* Buttons */
+    .popup-footer {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 15px;
+    }
 
-        .login-container button {
-            margin-top: 20px;
-            width: 100%;
-            padding: 12px;
-            background: #294b81;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background 0.3s ease, box-shadow 0.3s ease;
-        }
+    .popup-footer button {
+      background: #1877f2;
+      border: none;
+      padding: 10px 20px;
+      color: #fff;
+      border-radius: 6px;
+      cursor: pointer;
+    }
 
-        .login-container button:hover {
-            background: #3a609a;
-            box-shadow: 0px 5px 15px rgba(42, 75, 129, 0.5);
-        }
-
-        .login-container label {
-            display: flex;
-            align-items: center;
-        }
-
-        .login-container label input {
-            margin-right: 5px;
-        }
-
-        .login-button-container {
-            position: absolute;
-            bottom: -30px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80%;
-            height: 50px;
-            background: #294b81;
-            border-radius: 25px;
-            box-shadow: 0px 10px 15px rgba(0, 0, 0, 0.2);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            color: white;
-            font-size: 18px;
-            font-weight: bold;
-            transition: background 0.3s ease, transform 0.3s ease;
-        }
-
-        .login-button-container:hover {
-            background: #3a609a;
-            transform: translateX(-50%) scale(1.05);
-        }
-    </style>
+    .popup-footer button:hover {
+      background: #145db2;
+    }
+  </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="profile-icon">
-            <img src="https://via.placeholder.com/40" alt="User Icon">
-        </div>
-        <form>
-            <input type="text" placeholder="Username" required>
-            <input type="password" placeholder="Password" required>
-            <div class="register__here">
-                <label>
-                    <input type="checkbox"> Remember me
-                </label>
-                <a href="#">Forgot Password?</a>
-            </div>
-        </form>
-        <div class="login-button-container">
-            LOGIN
-        </div>
+  <!-- Popup Overlay -->
+<div class="popup-overlay" id="popup">
+  <div class="popup">
+    <div class="popup-header">
+      <span>Create post</span>
+      <button onclick="closePopup()">×</button>
     </div>
+    <div class="popup-content">
+      <p>What's on your mind, Nikki?</p>
+      <textarea placeholder="Write a caption..."></textarea>
+      <div class="add-photos">
+        <p>Add photos/videos</p>
+        <p>or drag and drop</p>
+      </div>
+    </div>
+    <div class="popup-footer">
+      <button onclick="closePopup()">Post</button>
+    </div>
+  </div>
+</div>
+
+  <script>
+    function closePopup() {
+      document.getElementById('popup').style.display = 'none';
+    }
+  </script>
 </body>
 </html>
+
+/* Media Grid */
+#media-preview {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2 items per row */
+  gap: 10px;
+  justify-content: center; /* Center items horizontally */
+  align-items: center; /* Center items vertically */
+  margin: 0 auto; /* Center the whole grid in the container */
+  max-width: 300px; /* Adjust as needed */
+}
+
+/* Individual Media Items */
+.media-item {
+  width: 100%;
+  height: 150px; /* Adjust height */
+  overflow: hidden;
+  border-radius: 8px;
+  position: relative;
+}
+
+.media-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Overlay for Additional Images */
+.media-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  font-size: 24px;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+}
+x

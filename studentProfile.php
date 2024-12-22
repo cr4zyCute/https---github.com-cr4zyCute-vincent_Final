@@ -31,9 +31,7 @@ if ($result && mysqli_num_rows($result) > 0) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" 
-          integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" 
-          crossorigin="anonymous" referrerpolicy="no-referrer" /> 
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <title>User Profile</title>
     <link rel="stylesheet" href="css/studentProfile.css">
     
@@ -45,8 +43,8 @@ if ($result && mysqli_num_rows($result) > 0) {
     <nav>
         <div class="logo">BSIT</div>
         <div class="nav-icons">
-            <a href="home.php"><i class="fa-solid fa-house"></i></a>
-            <a href="#"><i class="fa-solid fa-envelope"></i></a>
+            <a href="home.php"><i class="bi bi-house-door-fill"></i></a>
+            <a href="#"><i class="bi bi-envelope-fill"></i></a>
             <div class="dropdown">
             <a href="studentProfile.php">
                  <img src="images-data/<?= htmlspecialchars($student['image']) ?>" alt="Profile Image" class="profile-pic" >
