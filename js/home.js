@@ -27,7 +27,7 @@
     toggleDeleteButton(allFiles.length > 0);
   }
 
-  function displayFiles(files) {
+ function displayFiles(files) {
     const previewContainer = document.getElementById('media-preview');
     previewContainer.innerHTML = ''; // Clear previous previews
 
@@ -38,25 +38,27 @@
       const previewElement = document.createElement('div');
       previewElement.className = 'media-item';
 
-   if (fileType === 'image') {
-    const img = document.createElement('img');
-    img.src = URL.createObjectURL(file);
-    img.alt = file.name;
-    previewElement.appendChild(img);
-} else if (fileType === 'video') {
-    const video = document.createElement('video');
-    video.src = URL.createObjectURL(file);
-    video.controls = true;
-    video.alt = file.name;
-    previewElement.appendChild(video);
-}
+      if (fileType === 'image') {
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(file);
+        img.alt = file.name;
+        previewElement.appendChild(img);
+      } else if (fileType === 'video') {
+        const video = document.createElement('video');
+        video.src = URL.createObjectURL(file);
+        video.controls = true;
+        video.alt = file.name;
+        previewElement.appendChild(video);
+      }
       previewContainer.appendChild(previewElement);
     });
+
     if (files.length > 4) {
       const overlayElement = document.createElement('div');
       overlayElement.className = 'media-overlay';
       overlayElement.textContent = `+${files.length - 4}`;
-      previewContainer.appendChild(overlayElement);
+      const fourthMediaItem = previewContainer.children[3];
+      fourthMediaItem.appendChild(overlayElement);
     }
   }
 

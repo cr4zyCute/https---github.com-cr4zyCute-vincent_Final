@@ -606,23 +606,92 @@ color: white;
   overflow: hidden;
   border-radius: 8px;
   position: relative; /* Required for overlay positioning */
-  z-index: 1;
+
 }
 
 .media-item img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  z-index: 1;
+
+}
+.post {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin: 15px auto;
+    padding: 20px;
+    max-width: 600px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Profile Container */
+.profile-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.profile-container a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.profile-image {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 10px;
+    border: 2px solid #ddd;
+}
+
+.profile-name {
+    font-weight: bold;
+    font-size: 16px;
+    color: #333;
+}
+
+/* Post Content */
+.post p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #555;
+}
+
+/* Media Container */
+.media-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.post-media {
+    width: calc(50% - 5px); /* Adjust this for the number of columns */
+    border-radius: 8px;
+    object-fit: cover;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .post-media {
+        width: 100%;
+    }
+
+    .post {
+        padding: 15px;
+    }
 }
 
 .media-overlay {
   position: absolute;
-  top: 50%;
-  left: 55%;
-  width: 10%;
-  height: 10%;
-  background: rgba(0, 0, 0, 0.5);
+  top: 0%;
+  left: 0%;
+  width: 100%;
+  height: 100%;
+background-color: rgba(0, 0, 0, 0.559); 
   color: #fff;
   font-size: 24px;
   font-weight: bold;
@@ -630,7 +699,7 @@ color: white;
   justify-content: center;
   align-items: center;
   border-radius: 8px;
-  z-index: 2;    
+    
 }
 
 

@@ -31,7 +31,7 @@ if (isset($_FILES['media']['name'][0]) && $_FILES['media']['name'][0] != "") {
 
 // Insert post data into the database
 foreach ($mediaPaths as $mediaPath) {
-    $query = "INSERT INTO posts (student_id, content, media_path) VALUES ('$student_id', '$content', '$mediaPath')";
+    $query = "INSERT INTO posts (student_id, content, media) VALUES ('$student_id', '$content', '$mediaPath')";
     mysqli_query($conn, $query);
 }
 
