@@ -24,32 +24,41 @@ if ($result && mysqli_num_rows($result) > 0) {
     echo "Student profile not found.";
     exit();
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" 
+          integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" 
+          crossorigin="anonymous" referrerpolicy="no-referrer" /> 
     <title>User Profile</title>
     <link rel="stylesheet" href="css/studentProfile.css">
+    
 </head>
 <body>
 
-<nav class="navbar">
-    <a href="#" class="logo">CTU</a>
-    <div class="nav-icons">
-        <a href="home.php" title="Home"><i class="fa-solid fa-house"></i></a>
-        <a href="#message" title="Message"><i class="fa-solid fa-envelope"></i></a>
-        <div class="dropdown">
-            <a href="#" class="dropdown-toggle"><i class="fa-solid fa-gear"></i></a>
-            <div class="dropdown-content">
-                <a href="#profile">Profile Settings</a>
-                <a href="./includes/logout.php">Log out</a>
+<main>
+<header>
+    <nav>
+        <div class="logo">BSIT</div>
+        <div class="nav-icons">
+            <a href="home.php"><i class="fa-solid fa-house"></i></a>
+            <a href="#"><i class="fa-solid fa-envelope"></i></a>
+            <div class="dropdown">
+            <a href="studentProfile.php">
+                 <img src="images-data/<?= htmlspecialchars($student['image']) ?>" alt="Profile Image" class="profile-pic" >
+                <div class="dropdown-content">
+                    <a href="#profile">Profile Settings</a>
+                    <a href="./includes/logout.php">Log out</a>
+                </div>
             </div>
+            </a>
         </div>
-    </div>
-</nav>
+    </nav>
+</header>
 
 <div class="profile-container">
     <img src="images-data/<?= htmlspecialchars($student['image']) ?>" alt="Profile Image" class="profile-image">
@@ -76,6 +85,7 @@ if ($result && mysqli_num_rows($result) > 0) {
         <p>Inspired by technology and the future of innovation.</p>
     </div>
 </div>
+</main>
 <script>
     const menuBtn = document.getElementById('menu-btn');
     const navLinks = document.getElementById('nav-links');
@@ -84,5 +94,6 @@ if ($result && mysqli_num_rows($result) > 0) {
         navLinks.classList.toggle('show');
     });
 </script>
+
 </body>
 </html>

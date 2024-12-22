@@ -1,0 +1,64 @@
+.loading-page {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+   background: linear-gradient(135deg, #1e2696, #4f6da0, #c7d2e0);
+  /* background: linear-gradient(to right, #2c5364, #203a43, #0f2027); */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  z-index: 1000;
+}
+.image-logo {
+    width: 50px; /* Adjust width as needed */
+    height: 50px; /* Adjust height as needed */
+    animation: fadeIn 2s ease-in-out infinite alternate;
+}
+
+.image-logo img {
+    width: 200%; 
+    height: 200%; 
+    position: relative;
+    bottom: 100%;
+    left: 55%;
+   
+}
+.logo-name img {
+  width: 150px;
+  height: auto;
+  animation: fadeIn 2s ease-in-out infinite alternate;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0.5;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.name-container {
+  margin-top: 20px;
+  font-size: 20px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 5px;
+  color: #fff;
+  animation: slideUp 1.5s ease-in-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

@@ -17,12 +17,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
         } else {
             $user = mysqli_fetch_assoc($email_check_result);
             if ($user['password'] === $password) {
-                $_SESSION['student_id'] = $user['student_id'];
-                $_SESSION['email'] = $user['email'];
-
-                header('Location: studentProfile.php');
-                exit();
-            } else {
+    $_SESSION['student_id'] = $user['student_id'];
+    $_SESSION['email'] = $user['email'];
+    echo '
+    <link rel="stylesheet" href="./css/loading.css" />
+    <div class="loading-page">
+        <div class="name-container">
+            <div class="image-logo"><img src="./images/bsitlogo.png" alt=""></div>
+            <h2>Loading</h2>
+            <div class="logo-name"><img src="./images/Loading-gif-unscreen.gif" alt="Loading Animation"></div>
+        </div>
+    </div>
+    <script>
+        setTimeout(function() {
+            window.location.href = "studentProfile.php";
+        }, 3000);
+    </script>';
+    exit();
+}
+ else {
                 $error_message = "Wrong password!";
             }
         }
@@ -101,9 +114,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
         </div>
     </div>
 </div>
-
-
-
         <div id="home" class="container">
         
         <div class="container__right">

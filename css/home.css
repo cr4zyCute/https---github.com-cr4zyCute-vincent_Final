@@ -11,39 +11,153 @@ body {
     line-height: 1.6;
 }
 
-header {
-    background: #4267B2;
-    color: #fff;
-    padding: 10px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-nav .logo {
+/* Header Styling */
+header {
+    background-color: #4267B2;
+    color: white;
+    padding: 10px 20px;
+}
+
+nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Space between logo, search, and nav icons */
+    max-width: 1200px;
+    margin: 0 auto; /* Center content horizontally */
+}
+
+/* Logo Styling */
+.logo {
     font-size: 1.5rem;
     font-weight: bold;
 }
 
-nav .search-bar input {
-    padding: 5px;
+/* Search Bar Styling */
+.search-bar input {
+    width: 200px;
+    padding: 5px 10px;
     border: none;
     border-radius: 5px;
-    outline: none;
 }
 
-nav .nav-icons a {
-    margin: 0 10px;
-    color: #fff;
+/* Nav Icons Styling */
+.nav-icons {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.nav-icons a {
+    color: white;
+    font-size: 1.2rem;
     text-decoration: none;
 }
 
-/* Container */
+.nav-icons a:hover {
+    color: #f0f2f5;
+}
+
+/* Dropdown Styling */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-toggle {
+    text-decoration: none;
+    color: white;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #333;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    min-width: 150px; /* Set a minimum width */
+    white-space: nowrap; /* Prevent text wrapping */
+    z-index: 1;
+}
+
+.dropdown-content a {
+    text-decoration: none;
+    color: white;
+    display: block;
+    padding: 5px 10px;
+}
+
+.dropdown-content a:hover {
+    background-color: #575757;
+}
+
+/* Show Dropdown on Hover */
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+/* Base styles */
+.logo {
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+}
+
+/* Profile Picture */
+.profile-image {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    object-fit: cover; /* Ensures the image fits well */
+    border: 2px solid white; /* Optional border for style */
+    cursor: pointer;
+}
+
+/* Adjust alignment of nav icons */
+.nav-icons a {
+    display: flex;
+    align-items: center;
+    margin: 0 10px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    nav {
+        flex-direction: column; /* Stack logo, search, and icons vertically */
+        align-items: center; /* Center-align items */
+    }
+
+    .search-bar {
+        margin: 10px 0; 
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .nav-icons {
+        gap: 10px; /* Adjust spacing between icons */
+    }
+      .logo {
+        display: none;
+    }
+      .profile-image {
+        width: 30px;
+        height: 30px;
+    }
+}
+
+
 .container {
     display: flex;
     margin: 20px;
 }
-
 /* Sidebar */
 .sidebar {
     flex: 1;
@@ -227,7 +341,15 @@ nav .nav-icons a {
     cursor: pointer;
 }
 
-/* Comment Form */
+.post-form{
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+}
+.post-form textarea{
+    flex: 1;
+    margin-right: 10px;
+}
 .comment-form {
     margin-top: 10px;
     display: flex;

@@ -4,59 +4,138 @@ body {
     padding: 0;
 }
 
-/* General styles */
-.navbar {
-    display: flex;
-    justify-content: center; /* Centers horizontally */
-    align-items: center; /* Centers vertically */
+/* Header Styling */
+header {
+    background-color: #4267B2;
+    color: white;
     padding: 10px 20px;
-    background-color: #333;
-    color: #fff;
-    position: relative;
 }
 
-.navbar .logo {
-    position: absolute;
-    left: 20px; /* Keeps the logo on the left */
-    font-size: 24px;
+nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Space between logo, search, and nav icons */
+    max-width: 1200px;
+    margin: 0 auto; /* Center content horizontally */
+}
+
+/* Logo Styling */
+.logo {
+    font-size: 1.5rem;
     font-weight: bold;
-    color: #fff;
-    text-decoration: none;
 }
 
+/* Search Bar Styling */
+.search-bar input {
+    width: 200px;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+}
+
+/* Nav Icons Styling */
 .nav-icons {
     display: flex;
-    gap: 20px;
+    align-items: center;
+    gap: 15px;
 }
 
 .nav-icons a {
-    color: #fff;
+    color: white;
+    font-size: 1.2rem;
     text-decoration: none;
 }
 
+.nav-icons a:hover {
+    color: #f0f2f5;
+}
+
+/* Dropdown Styling */
 .dropdown {
     position: relative;
+    display: inline-block;
+}
+
+.dropdown-toggle {
+    text-decoration: none;
+    color: white;
 }
 
 .dropdown-content {
     display: none;
     position: absolute;
-    background-color: #444;
+    background-color: #333;
+    color: white;
     padding: 10px;
-    border-radius: 4px;
-    top: 100%;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    min-width: 150px; /* Set a minimum width */
+    white-space: nowrap; /* Prevent text wrapping */
+    z-index: 1;
 }
 
+.dropdown-content a {
+    text-decoration: none;
+    color: white;
+    display: block;
+    padding: 5px 10px;
+}
+
+.dropdown-content a:hover {
+    background-color: #575757;
+}
+
+/* Show Dropdown on Hover */
 .dropdown:hover .dropdown-content {
     display: block;
 }
+/* Base styles */
+.logo {
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+}
 
-/* Responsive styles */
+/* Profile Picture */
+.profile-pic {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    object-fit: cover; /* Ensures the image fits well */
+    border: 2px solid white; /* Optional border for style */
+    cursor: pointer;
+}
+
+/* Adjust alignment of nav icons */
+.nav-icons a {
+    display: flex;
+    align-items: center;
+    margin: 0 10px;
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
+    nav {
+        flex-direction: column; /* Stack logo, search, and icons vertically */
+        align-items: center; /* Center-align items */
+    }
+
+    .search-bar {
+        margin: 10px 0; /* Add spacing around the search bar */
+    }
+
     .nav-icons {
-        gap: 10px; /* Adjust spacing for smaller screens */
+        gap: 10px; /* Adjust spacing between icons */
+    }
+      .logo {
+        display: none;
+    }
+      .profile-pic {
+        width: 30px;
+        height: 30px;
     }
 }
+
 
 .nav__menu__btn {
     display: none;

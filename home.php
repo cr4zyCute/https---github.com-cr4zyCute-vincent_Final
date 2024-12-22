@@ -1,25 +1,81 @@
+<?php
+    include 'database/dbcon.php';
+    session_start();
+    if(!isset($_SESSION['student_id'])){
+        header("Location: index.php");
+    }
+
+$student_id = $_SESSION['student_id'];
+$query = "SELECT * FROM student WHERE id = '$student_id'";
+$result = mysqli_query($conn, $query);
+
+if ($result && mysqli_num_rows($result) > 0) {
+    $student = mysqli_fetch_assoc($result);
+} else {
+    echo "Student profile not found.";
+    exit();
+}
+$query = "SELECT p.*, s.firstname, s.lastname, s.image AS profile_image 
+          FROM posts p 
+          JOIN student s ON p.student_id = s.id 
+          ORDER BY p.created_at DESC";
+$result = mysqli_query($conn, $query);
+
+if ($result) {
+    while ($post = mysqli_fetch_assoc($result)) {
+        echo '<div class="post">';
+        echo '<div class="post-header">';
+        echo '<img src="images-data/' . htmlspecialchars($post['profile_image']) . '" alt="Profile Image" class="profile-pic">';
+        echo '<h3>' . htmlspecialchars($post['firstname'] . ' ' . $post['lastname']) . '</h3>';
+        echo '</div>';
+        echo '<p>' . htmlspecialchars($post['content']) . '</p>';
+        if (!empty($post['media_path'])) {
+            $mediaType = mime_content_type($post['media_path']);
+            if (strpos($mediaType, 'image') !== false) {
+                echo '<img src="' . htmlspecialchars($post['media_path']) . '" alt="Post Media" class="post-image">';
+            } elseif (strpos($mediaType, 'video') !== false) {
+                echo '<video controls class="post-video"><source src="' . htmlspecialchars($post['media_path']) . '" type="' . $mediaType . '"></video>';
+            }
+        }
+        echo '</div>';
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Social Media Home</title>
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" 
+          integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" 
+          crossorigin="anonymous" referrerpolicy="no-referrer" />   
+           <title>BSIT Home-Page</title>
     <link rel="stylesheet" href="css/home.css">
 </head>
 <body>
-    <header>
-        <nav>
-            <div class="logo">SocialHub</div>
-            <div class="search-bar">
-                <input type="text" placeholder="Search...">
+<header>
+    <nav>
+        <div class="logo">BSIT</div>
+        <div class="search-bar">
+            <input type="text" placeholder="Search...">
+        </div>
+        <div class="nav-icons">
+            <a href="home.php"><i class="fa-solid fa-house"></i></a>
+            <a href="#"><i class="fa-solid fa-envelope"></i></a>
+            <div class="dropdown">
+            <a href="studentProfile.php">
+                 <img src="images-data/<?= htmlspecialchars($student['image']) ?>" alt="Profile Image" class="profile-image" >
+                <div class="dropdown-content">
+                    <a href="#profile">Profile Settings</a>
+                    <a href="./includes/logout.php">Log out</a>
+                </div>
             </div>
-            <div class="nav-icons">
-                <a href="#">🔔</a>
-                <a href="#">✉️</a>
-                <a href="studentProfile.php">👤</a>
-            </div>
-        </nav>
-    </header>
+            </a>
+        </div>
+    </nav>
+</header>
+
     <div class="container">
         <!-- <aside class="sidebar">
             <ul>
@@ -31,13 +87,13 @@
         </aside> -->
         <main class="feed">
             <div class="add-post">
-                <h3>Create a Post</h3>
-                <form>
-                    <textarea placeholder="What's on your mind?" rows="3"></textarea>
-                    <div class="post-actions">
-                        <label for="upload-photo">📷 Add Photo</label>
-                        <input type="file" id="upload-photo" style="display: none;">
-                        <button type="submit">Post</button>
+                <h3>Create a Post <?= htmlspecialchars($student['firstname'] . ' ' . $student['lastname']) ?></h3>
+                    <form action="uploadPost.php" method="POST" enctype="multipart/form-data">
+                    <div class="post-form">
+                        <textarea name="content" placeholder="What's on your mind?" rows="3" style="resize: none;"></textarea>
+                        <label for="upload-media">📷 Add Media</label>
+                        <input type="file" id="upload-media" name="media[]" multiple accept="image/*,video/*" style="display: none;">
+                        <button type="submit" name="submit">Post</button>
                     </div>
                 </form>
             </div>
@@ -97,7 +153,7 @@
         </aside>
     </div>
     <footer>
-        <p>&copy; 2024 SocialHub. All rights reserved.</p>
+        <p>&copy; 2024 BSIT. All rights reserved.</p>
     </footer>
 </body>
 </html>
