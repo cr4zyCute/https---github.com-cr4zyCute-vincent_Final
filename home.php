@@ -113,6 +113,7 @@ if ($result->num_rows > 0) {
 </div>
 
     <div class="container">
+         
         <main class="feed">
         <div class="add-post">
         <div class="profile-container">
@@ -132,8 +133,7 @@ if ($result->num_rows > 0) {
             </div>
         </form>
         </div>
- <?php
-
+<?php
 $query = "SELECT p.*, s.firstname, s.lastname, s.image AS profile_image, 
             (SELECT COUNT(*) FROM likes WHERE post_id = p.id) AS like_count,
             (SELECT COUNT(*) FROM comments WHERE post_id = p.id) AS comment_count
@@ -212,6 +212,11 @@ echo '</form>';
             </ul>
         </aside>
     </div>
+
+
+
+
+
     <footer>
         <p>&copy; 2024 BSIT. All rights reserved.</p>
     </footer>

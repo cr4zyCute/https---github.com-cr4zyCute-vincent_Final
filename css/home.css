@@ -156,19 +156,29 @@ nav {
 
 .container {
     display: flex;
-    margin: 20px;
+    justify-content: space-between; /* Space between columns */
+  
+    gap: 20px; /* Add space between columns */
+    padding: 0 10px; /* Add padding for smaller screens */
 }
+
+
 /* Sidebar */
 .sidebar {
-    flex: 1;
-    background: #fff;
-    padding: 20px;
+    flex: 1; /* Adjust this if you want it to grow/shrink with the flex container */
+    width: 50px; /* Set a specific width */
+    height: auto; /* Adjust the height if needed */
+    background: #333;
+    color: white;
+    padding: 20px; /* Increase or decrease padding to make it bigger or smaller */
     border-radius: 8px;
-    margin-right: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+   
 }
 
 .sidebar ul {
     list-style: none;
+    padding: 0;
 }
 
 .sidebar ul li {
@@ -177,18 +187,22 @@ nav {
 
 .sidebar ul li a {
     text-decoration: none;
-    color: #333;
+    color: white;
     font-weight: bold;
 }
 
 /* Feed */
-.feed {
-    flex: 2;
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
+    .feed {
+        flex: 2;
+        background: #fff;
+        max-width: 800px;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+.add-post {
+    margin-bottom: 20px;
 }
-
 .feed .post {
     margin-bottom: 20px;
     background: #f9f9f9;
