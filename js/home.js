@@ -82,3 +82,20 @@
     deleteButton.style.display = show ? 'block' : 'none';
   }
 
+function previewFiles(event) {
+    const previewContainer = document.getElementById('media-preview');
+    previewContainer.innerHTML = '';
+    const files = event.target.files;
+
+    for (let file of files) {
+        const fileReader = new FileReader();
+        fileReader.onload = (e) => {
+            const media = document.createElement(file.type.startsWith('image/') ? 'img' : 'video');
+            media.src = e.target.result;
+            media.controls = file.type.startsWith('video/');
+            media.classList.add('preview-media');
+            previewContainer.appendChild(media);
+        };
+        fileReader.readAsDataURL(file);
+    }
+}

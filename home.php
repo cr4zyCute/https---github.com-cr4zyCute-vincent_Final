@@ -19,24 +19,37 @@ if ($result && mysqli_num_rows($result) > 0) {
     exit();
 }
 
-if ($content) {
+if ($content || !empty($mediaFiles['name'][0])) {
     // Save post content to database
     $query = "INSERT INTO posts (student_id, content, created_at) VALUES ('$student_id', '$content', NOW())";
     mysqli_query($conn, $query);
     $postId = mysqli_insert_id($conn); // Get the ID of the newly created post
 
-    // Handle media upload
-    foreach ($mediaFiles['tmp_name'] as $key => $tmp_name) {
-        if ($mediaFiles['error'][$key] === 0) {
-            $filePath = 'uploads/' . basename($mediaFiles['name'][$key]);
-            move_uploaded_file($tmp_name, $filePath);
+    // Handle media upload if any media files are provided
+    if (!empty($mediaFiles['name'][0])) {
+        foreach ($mediaFiles['tmp_name'] as $key => $tmp_name) {
+            if ($mediaFiles['error'][$key] === 0) {
+                $filePath = 'uploads/' . basename($mediaFiles['name'][$key]);
+                move_uploaded_file($tmp_name, $filePath);
 
-            // Update the post with media path
-            $query = "UPDATE posts SET media = '$filePath' WHERE id = '$postId'";
-            mysqli_query($conn, $query);
+                // Update the post with media path
+                $query = "UPDATE posts SET media = '$filePath' WHERE id = '$postId'";
+                mysqli_query($conn, $query);
+            }
         }
     }
 }
+if (!empty($post['media'])) {
+    $mediaType = mime_content_type($post['media']);
+    if (strpos($mediaType, 'image') !== false) {
+        echo '<img src="' . htmlspecialchars($post['media']) . '" alt="Post Media" class="post-image">';
+    } elseif (strpos($mediaType, 'video') !== false) {
+        echo '<video controls class="post-video"><source src="' . htmlspecialchars($post['media']) . '" type="' . $mediaType . '"></video>';
+    }
+} elseif (!empty($post['content'])) {
+    echo '<p>' . htmlspecialchars($post['content']) . '</p>';
+}
+
 $posts = [];
 
 if ($conn->connect_error) {
@@ -85,6 +98,7 @@ if ($result->num_rows > 0) {
         </div>
     </nav>
 </header>
+
 <div class="popup-overlay" id="post-popup">
     <div class="post-popup">
         <div class="popup-header">
@@ -133,6 +147,8 @@ if ($result->num_rows > 0) {
             </div>
         </form>
         </div>
+        
+
 <?php
 $query = "SELECT p.*, s.firstname, s.lastname, s.image AS profile_image, 
             (SELECT COUNT(*) FROM likes WHERE post_id = p.id) AS like_count,
@@ -212,16 +228,10 @@ echo '</form>';
             </ul>
         </aside>
     </div>
-
-
-
-
-
-    <footer>
-        <p>&copy; 2024 BSIT. All rights reserved.</p>
-    </footer>
+ 
  <script src="./js/home.js" ></script>
 </body>
+  
 <script>
      document.querySelectorAll('.comment-toggle').forEach(button => {
         button.addEventListener('click', () => {
@@ -249,6 +259,7 @@ echo '</form>';
             }
         });
     });
+    
     document.addEventListener("DOMContentLoaded", function () {
     const commentButtons = document.querySelectorAll(".comment-button");
 
@@ -281,5 +292,7 @@ echo '</form>';
         });
     });
 });
+
+
 </script>
 </html>

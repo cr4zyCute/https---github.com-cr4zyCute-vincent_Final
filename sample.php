@@ -1,180 +1,225 @@
+<?php
+    include 'database/dbcon.php';
+    session_start();
+    if(!isset($_SESSION['student_id'])){
+        header("Location: index.php");
+    }
+
+$student_id = $_SESSION['student_id'];
+$query = "SELECT * FROM student WHERE id = '$student_id'";
+$result = mysqli_query($conn, $query);
+$querypost = "SELECT * FROM posts WHERE id = '$student_id'";
+$content = $_POST['content'] ?? '';
+$mediaFiles = $_FILES['media'] ?? [];
+
+if ($result && mysqli_num_rows($result) > 0) {
+    $student = mysqli_fetch_assoc($result);
+} else {
+    echo "Student profile not found.";
+    exit();
+}
+
+if ($content || !empty($mediaFiles['name'][0])) {
+    // Save post content to database
+    $query = "INSERT INTO posts (student_id, content, created_at) VALUES ('$student_id', '$content', NOW())";
+    mysqli_query($conn, $query);
+    $postId = mysqli_insert_id($conn); // Get the ID of the newly created post
+
+    // Handle media upload if any media files are provided
+    if (!empty($mediaFiles['name'][0])) {
+        foreach ($mediaFiles['tmp_name'] as $key => $tmp_name) {
+            if ($mediaFiles['error'][$key] === 0) {
+                $filePath = 'uploads/' . basename($mediaFiles['name'][$key]);
+                move_uploaded_file($tmp_name, $filePath);
+
+                // Update the post with media path
+                $query = "UPDATE posts SET media = '$filePath' WHERE id = '$postId'";
+                mysqli_query($conn, $query);
+            }
+        }
+    }
+}
+if (!empty($post['media'])) {
+    $mediaType = mime_content_type($post['media']);
+    if (strpos($mediaType, 'image') !== false) {
+        echo '<img src="' . htmlspecialchars($post['media']) . '" alt="Post Media" class="post-image">';
+    } elseif (strpos($mediaType, 'video') !== false) {
+        echo '<video controls class="post-video"><source src="' . htmlspecialchars($post['media']) . '" type="' . $mediaType . '"></video>';
+    }
+} elseif (!empty($post['content'])) {
+    echo '<p>' . htmlspecialchars($post['content']) . '</p>';
+}
+
+$posts = [];
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+$sql = "SELECT * FROM posts ORDER BY created_at DESC";
+$result = $conn->query($sql);
+if ($result->num_rows > 0) {
+    while($row = $result->fetch_assoc()) {
+        $posts[] = $row;
+    }
+}
+
+
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Popup Example with Caption</title>
-  <style>
-    /* General styling for the popup overlay */
-    .popup-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard</title>
+     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+     <link rel="stylesheet" href="./sample.css">
 
-    /* Popup container */
-    .popup {
-      width: 400px;
-      background: #242526;
-      border-radius: 8px;
-      padding: 20px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-      color: #fff;
-      font-family: Arial, sans-serif;
-    }
-
-    /* Header */
-    .popup-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 18px;
-      font-weight: bold;
-    }
-
-    .popup-header button {
-      background: none;
-      border: none;
-      color: #bbb;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    /* Content */
-    .popup-content {
-      margin: 15px 0;
-    }
-
-    /* Caption text area */
-      /* Caption text area */
-    .caption-area {
-      margin-top: 10px;
-    }
-
-    textarea {
-      width: 94%;
-      height: 60px;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      background: #3a3b3c;
-      color: #fff;
-      font-size: 14px;
-      resize: none;
-    }
-
-    textarea::placeholder {
-      color: #bbb;
-    }
-    /* Add photos section */
-    .add-photos {
-      background: #3a3b3c;
-      border: 1px dashed #ccc;
-      border-radius: 8px;
-      padding: 20px;
-      text-align: center;
-      color: #ccc;
-      margin-top: 10px;
-    }
-
-    /* Buttons */
-    .popup-footer {
-      display: flex;
-      justify-content: flex-end;
-      margin-top: 15px;
-    }
-
-    .popup-footer button {
-      background: #1877f2;
-      border: none;
-      padding: 10px 20px;
-      color: #fff;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .popup-footer button:hover {
-      background: #145db2;
-    }
-  </style>
 </head>
 <body>
-  <!-- Popup Overlay -->
-<div class="popup-overlay" id="popup">
-  <div class="popup">
-    <div class="popup-header">
-      <span>Create post</span>
-      <button onclick="closePopup()">×</button>
+    <header>
+        <div class="logo">
+            <img src="./images/bsitlogo.png" alt="Logo">
+            <span>BSIT</span>
+        </div>
+        <div class="icons">
+        <a href="home.html"><i class="bi bi-house-door-fill"></i></a>
+        <a href="messages.html"><i class="bi bi-envelope-fill"></i></a>
+        <a href="announcements.html"><i class="bi bi-megaphone-fill announcement-icon"></i></a>
+          <div class="dropdown">
+            <a href="studentProfile.php">
+                 <img src="images-data/<?= htmlspecialchars($student['image']) ?>" alt="Profile Image" class="profile-image" >
+                <div class="dropdown-content">
+                    <a href="#profile">Profile Settings</a>
+                    <a href="./includes/logout.php">Log out</a>
+                </div>
+            </div>
     </div>
-    <div class="popup-content">
-      <p>What's on your mind, Nikki?</p>
-      <textarea placeholder="Write a caption..."></textarea>
-      <div class="add-photos">
-        <p>Add photos/videos</p>
-        <p>or drag and drop</p>
-      </div>
+    </header>
+
+    <div class="container">
+        <div class="left-section">
+            <div class="profile"  onclick="openPopup()">
+             <img src="images-data/<?= htmlspecialchars($student['image']) ?>" alt="Profile Image" class="profile-image" >
+                <input type="text" placeholder="Create a Post......">
+                <button>POST</button>
+            </div>
+
+
+            
+<div class="popup-overlay" id="post-popup">
+    <div class="post-popup">
+        <div class="popup-header">
+            <span>Create post</span>
+            <button onclick="closePopup()">×</button>
+        </div>
+   <form action="uploadPost.php" method="POST" enctype="multipart/form-data">
+    <div class="postpopup-content">
+        <div class="profile-container">
+            <a href="studentProfile.php">
+                <img src="images-data/<?= htmlspecialchars($student['image']) ?>" alt="Profile Image" class="profile-pic">
+            </a>
+            <p class="profile-name"><?= htmlspecialchars($student['firstname'] . ' ' . $student['lastname']) ?></p>
+        </div>
+        <textarea name="content" placeholder="What on your mind? <?= htmlspecialchars($student['firstname']) ?>"></textarea>
+        <div class="add-photos" onclick="triggerFileUpload()">
+            <input type="file" id="media-upload" name="media[]" multiple accept="image/*,video/*" style="display: none;" onchange="previewFiles(event)">
+            <p>Add photos/videos</p>
+        </div><br>
+        <div id="media-preview" class="media-grid"></div>
     </div>
-    <div class="popup-footer">
-      <button onclick="closePopup()">Post</button>
+    <button id="delete-post" class="delete-button" style="display: none;" onclick="clearFiles()">Cancel Post</button>
+    <button type="submit">Post</button>
+</form>
     </div>
-  </div>
+</div>
+       <div class="left-section">
+    <?php
+function timeAgo($datetime) {
+    $timestamp = strtotime($datetime);
+    if ($timestamp === false) {
+        return "Invalid datetime format"; 
+    }
+
+    $currentTime = time();
+    $timeDifference = $currentTime - $timestamp;
+    $minutes = floor($timeDifference / 60);
+    $hours = floor($minutes / 60);
+    $days = floor($hours / 24);
+
+    if ($minutes < 1) {
+        return "Just now";
+    } elseif ($minutes == 1) {
+        return "1 minute ago";
+    } elseif ($minutes < 60) {
+        return "$minutes minutes ago";
+    } elseif ($hours == 1) {
+        return "1 hour ago";
+    } elseif ($hours < 24) {
+        return "$hours hours ago";
+    } elseif ($days == 1) {
+        return "1 day ago";
+    } else {
+        return "$days days ago";
+    }
+}
+
+    $query = "SELECT p.*, s.firstname, s.lastname, s.image AS profile_image, 
+                (SELECT COUNT(*) FROM likes WHERE post_id = p.id) AS like_count,
+                (SELECT COUNT(*) FROM comments WHERE post_id = p.id) AS comment_count
+              FROM posts p 
+              JOIN student s ON p.student_id = s.id 
+              ORDER BY p.created_at DESC";
+    $result = mysqli_query($conn, $query);
+
+    if ($result) {
+        while ($post = mysqli_fetch_assoc($result)) {
+            echo '<div class="post">';
+            echo '<div class="post-header">';
+            echo '<img src="images-data/' . htmlspecialchars($post['profile_image']) . '" alt="Profile Image" class="profile-pic">';
+            echo '<div class="post-user-info">';
+            echo '<strong>' . htmlspecialchars($post['firstname'] . ' ' . $post['lastname']) . '</strong>';
+            echo '<span><i class="bi bi-mortarboard-fill"></i> Student</span>';
+        echo '<span class="post-time">' . htmlspecialchars(timeAgo($post['created_at'])) . '</span>';
+
+            echo '</div>';
+            echo '</div>';
+            
+            echo '<p class="post-content">' . htmlspecialchars($post['content']) . '</p>';
+
+            if (!empty($post['media'])) {
+                echo '<div class="post-media">';
+                echo '<img src="' . htmlspecialchars($post['media']) . '" alt="Post Media">';
+                echo '</div>';
+            }
+
+            echo '<div class="post-actions">';
+            echo '<button class="like-button">Like (' . htmlspecialchars($post['like_count']) . ')</button>';
+            echo '<button class="comment-button">Comment (' . htmlspecialchars($post['comment_count']) . ')</button>';
+            echo '</div>';
+
+            echo '</div>'; 
+        }
+    }
+    ?>
 </div>
 
-  <script>
-    function closePopup() {
-      document.getElementById('popup').style.display = 'none';
-    }
-  </script>
+        </div>
+
+        <div class="right-section">
+            <div class="announcement">
+                <div class="card">
+                    <strong>Nikki Sixx Acoosta</strong> <span>1hr</span>
+                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Veritatis totam autem.</p>
+                </div>
+                <div class="card">
+                    <strong>Nikki Sixx Acoosta</strong> <span>1hr</span>
+                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Veritatis totam autem.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="./js/home.js" ></script>
 </body>
 </html>
-
-/* Media Grid */
-#media-preview {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr); /* 2 items per row */
-  gap: 10px;
-  justify-content: center; /* Center items horizontally */
-  align-items: center; /* Center items vertically */
-  margin: 0 auto; /* Center the whole grid in the container */
-  max-width: 300px; /* Adjust as needed */
-}
-
-/* Individual Media Items */
-.media-item {
-  width: 100%;
-  height: 150px; /* Adjust height */
-  overflow: hidden;
-  border-radius: 8px;
-  position: relative;
-}
-
-.media-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* Overlay for Additional Images */
-.media-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  color: #fff;
-  font-size: 24px;
-  font-weight: bold;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 8px;
-}
-x
