@@ -1,3 +1,58 @@
+ 
+ 
+ document.addEventListener("DOMContentLoaded", () => {
+    // Handle likes
+    document.querySelectorAll(".like-button").forEach(button => {
+        button.addEventListener("click", () => {
+            const postId = button.getAttribute("data-post-id");
+            fetch("likes.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `post_id=${postId}`
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        const likeCount = button.querySelector("i");
+                        let count = parseInt(likeCount.textContent.match(/\d+/)[0]);
+                        likeCount.textContent = data.action === "liked" ? `Like (${++count})` : `Like (${--count})`;
+                    }
+                });
+        });
+    });
+
+    // Handle comments
+    document.querySelectorAll(".comment-form").forEach(form => {
+        form.addEventListener("submit", e => {
+            e.preventDefault();
+            const postId = form.querySelector("[name='post_id']").value;
+            const comment = form.querySelector("[name='comment']").value;
+
+            fetch("comments.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `post_id=${postId}&comment=${encodeURIComponent(comment)}`
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        // Append new comment dynamically
+                        const commentsSection = document.querySelector(`#comments-${postId}`);
+                        const newComment = document.createElement("div");
+                        newComment.classList.add("comment");
+                        newComment.innerHTML = `
+                            <img src="images-data/${data.profile_image}" alt="Profile Image" class="profile-pic">
+                            <strong>${data.firstname} ${data.lastname}:</strong> 
+                            <p>${comment}</p>
+                        `;
+                        commentsSection.appendChild(newComment);
+                        form.reset();
+                    }
+                });
+        });
+    });
+});
+
  function openPopup() {
     document.getElementById('post-popup').style.display = 'flex';
   }
@@ -23,16 +78,16 @@
     // Update the preview display
     displayFiles(allFiles);
 
-    // Show the "Cancel Post" button if there are files
+  
     toggleDeleteButton(allFiles.length > 0);
   }
 
  function displayFiles(files) {
     const previewContainer = document.getElementById('media-preview');
-    previewContainer.innerHTML = ''; // Clear previous previews
+    previewContainer.innerHTML = ''; 
 
     files.forEach((file, index) => {
-      if (index >= 4) return; // Only show the first 4 items initially
+      if (index >= 4) return; 
 
       const fileType = file.type.split('/')[0]; 
       const previewElement = document.createElement('div');
@@ -82,20 +137,52 @@
     deleteButton.style.display = show ? 'block' : 'none';
   }
 
-function previewFiles(event) {
-    const previewContainer = document.getElementById('media-preview');
-    previewContainer.innerHTML = '';
-    const files = event.target.files;
+// function previewFiles(event) {
+//     const previewContainer = document.getElementById('media-preview');
+//     previewContainer.innerHTML = '';
+//     const files = event.target.files;
 
-    for (let file of files) {
-        const fileReader = new FileReader();
-        fileReader.onload = (e) => {
-            const media = document.createElement(file.type.startsWith('image/') ? 'img' : 'video');
-            media.src = e.target.result;
-            media.controls = file.type.startsWith('video/');
-            media.classList.add('preview-media');
-            previewContainer.appendChild(media);
-        };
-        fileReader.readAsDataURL(file);
+//     for (let file of files) {
+//         const fileReader = new FileReader();
+//         fileReader.onload = (e) => {
+//             const media = document.createElement(file.type.startsWith('image/') ? 'img' : 'video');
+//             media.src = e.target.result;
+//             media.controls = file.type.startsWith('video/');
+//             media.classList.add('preview-media');
+//             previewContainer.appendChild(media);
+//         };
+//         fileReader.readAsDataURL(file);
+//     }
+// }
+document.addEventListener('DOMContentLoaded', function () {
+    const commentButtons = document.querySelectorAll('.comment-button');
+
+    commentButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const postId = button.getAttribute('data-post-id');
+            const commentsDiv = document.getElementById('comments-' + postId);
+
+            if (commentsDiv.style.display === 'none' || commentsDiv.style.display === '') {
+                commentsDiv.style.display = 'block';
+            } else {
+                commentsDiv.style.display = 'none';
+            }
+        });
+    });
+});
+function deletePost(postId) {
+    if (confirm('Are you sure you want to delete this post?')) {
+        // Send an AJAX request to delete the post
+        fetch(`delete_post.php?id=${postId}`, { method: 'DELETE' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Post deleted successfully.');
+                    location.reload(); // Reload the page or remove the post dynamically
+                } else {
+                    alert('Error deleting the post.');
+                }
+            })
+            .catch(error => console.error('Error:', error));
     }
 }
