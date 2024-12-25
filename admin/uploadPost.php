@@ -1,13 +1,13 @@
 <?php
-include 'database/dbcon.php';
+include '../database/dbcon.php';
 session_start();
 
-if (!isset($_SESSION['student_id'])) {
-    header("Location: index.php");
+if (!isset($_SESSION['admin_id'])) {
+    header("Location: admin-login.php");
     exit();
 }
 
-$student_id = $_SESSION['student_id'];
+$admin_id = $_SESSION['admin_id']; // Correctly fetch admin_id
 $content = mysqli_real_escape_string($conn, $_POST['content']);
 $mediaPaths = [];
 
@@ -15,7 +15,7 @@ $mediaPaths = [];
 if (isset($_FILES['media']['name'][0]) && $_FILES['media']['name'][0] != "") {
     foreach ($_FILES['media']['tmp_name'] as $key => $tmp_name) {
         $fileName = basename($_FILES['media']['name'][$key]);
-        $targetDir = "uploads/";
+        $targetDir = "../uploads/";
         $targetFilePath = $targetDir . time() . "_" . $fileName;
 
         // Ensure the directory exists
@@ -34,17 +34,17 @@ if (isset($_FILES['media']['name'][0]) && $_FILES['media']['name'][0] != "") {
 if (!empty($content) || !empty($mediaPaths)) {
     if (empty($mediaPaths)) {
         // Insert text-only post
-        $query = "INSERT INTO posts (student_id, content) VALUES ('$student_id', '$content')";
+        $query = "INSERT INTO posts (admin_id, content) VALUES ('$admin_id', '$content')";
         mysqli_query($conn, $query);
     } else {
         // Insert post with media
         foreach ($mediaPaths as $mediaPath) {
-            $query = "INSERT INTO posts (student_id, content, media) VALUES ('$student_id', '$content', '$mediaPath')";
+            $query = "INSERT INTO posts (admin_id, content, media) VALUES ('$admin_id', '$content', '$mediaPath')";
             mysqli_query($conn, $query);
         }
     }
 }
 
-header("Location: home.php");
+header("Location: admin-dashboard.php");
 exit();
 ?>

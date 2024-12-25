@@ -129,18 +129,17 @@ if ($result->num_rows > 0) {
         </div><br>
         <div id="media-preview" class="media-grid"></div>
     </div>
-    <button id="delete-post" class="delete-button" style="display: none;" onclick="clearFiles()">Cancel Post</button>
-    <button type="submit">Post</button>
+    <button id="delete-post" class="cancel-button" style="display: none;" onclick="clearFiles()">Cancel Post</button>
+    <button class="post-btn" type="submit">Post</button>
 </form>
     </div>
 </div>
        <div class="left-section">
     <?php
 function timeAgo($datetime) {
-    // Convert datetime string to timestamp
+
     $timestamp = strtotime($datetime);
 
-    // If the conversion fails, return an error message
     if ($timestamp === false) {
         return "Invalid datetime format";
     }
@@ -148,7 +147,6 @@ function timeAgo($datetime) {
     $currentTime = time();
     $timeDifference = $currentTime - $timestamp;
 
-    // Calculate time differences
     $minutes = floor($timeDifference / 60);
     $hours = floor($minutes / 60);
     $days = floor($hours / 24);
@@ -182,9 +180,9 @@ function timeAgo($datetime) {
         while ($post = mysqli_fetch_assoc($result)) {
             echo '<div class="post">';
             echo '<div class="post-header">';
-            echo '<div class="delete-container">';
-            echo '<button class="delete-button" onclick="deletePost(' . htmlspecialchars($post['id']) . ')"><i class="bi bi-trash3-fill"></i></button>';
-        echo '</div>';
+        //     echo '<div class="delete-container">';
+        // echo '<button class="delete-button" onclick="deletePost(' . htmlspecialchars($post['id']) . ')"><i class="bi bi-trash3-fill"></i></button>';
+        // echo '</div>';
                     echo '<img src="images-data/' . htmlspecialchars($post['profile_image']) . '" alt="Profile Image" class="profile-pic">';
             echo '<div class="post-user-info">';
             echo '<strong>' . htmlspecialchars($post['firstname'] . ' ' . $post['lastname']) . '</strong>';
@@ -193,8 +191,10 @@ function timeAgo($datetime) {
 
             echo '</div>';
             echo '</div>';
-            
-            echo '<p class="post-content">' . htmlspecialchars($post['content']) . '</p>';
+
+         echo '<div class="post-content">';
+            echo '<p>' . htmlspecialchars($post['content']) . '</p>';
+         echo '</div>';
 
             if (!empty($post['media'])) {
                 echo '<div class="post-media">';
@@ -207,16 +207,19 @@ function timeAgo($datetime) {
                     echo '<textarea name="comment" placeholder="Write a comment..." required></textarea>';
                     echo '<button type="submit">Post Comment</button>';
                     echo '</form>';
-                   echo '<div class="post-actions">';
-echo '<button class="like-button" onclick="toggleLike(this, ' . htmlspecialchars($post['id']) . ')">';
-echo '<i class="bi bi-balloon-heart-fill" style="color: red;"></i> ';
-echo '<span>Like</span> (<span class="like-count">' . htmlspecialchars($post['like_count']) . '</span>)';
-echo '</button>';
-echo '<button class="comment-button" onclick="toggleComments(' . htmlspecialchars($post['id']) . ')">';
-echo '<i class="bi bi-chat-square-dots-fill" style="color: blue;"></i> ';
-echo '<span>Comment</span> (<span class="comment-count">' . htmlspecialchars($post['comment_count']) . '</span>)';
-echo '</button>';
-echo '</div>';
+                                    echo '<div class="post-actions">';
+                    echo '<form method="POST" action="like_post.php" class="like-form">';
+                        echo '<button class="like-button" onclick="toggleLike(this, ' . htmlspecialchars($post['id']) . ')">';
+                        echo '<i class="bi bi-balloon-heart-fill" style="color: red;"></i> ';
+                        echo '<span>Like</span> (<span class="like-count">' . htmlspecialchars($post['like_count']) . '</span>)';
+                        echo '</button>';
+                    echo '</form>';
+
+                    echo '<button class="comment-button" onclick="toggleComments(' . htmlspecialchars($post['id']) . ')">';
+                    echo '<i class="bi bi-chat-square-dots-fill" style="color: blue;"></i> ';
+                    echo '<span>Comment</span> (<span class="comment-count">' . htmlspecialchars($post['comment_count']) . '</span>)';
+                    echo '</button>';
+                    echo '</div>';
 
             echo '</div>';
             $commentQuery = "SELECT c.*, s.firstname, s.lastname, s.image AS profile_image
@@ -265,76 +268,13 @@ echo '</div>';
     <script src="./js/home.js" ></script>
     <script>
          
- 
-document.querySelectorAll('.like-button').forEach(button => {
-    button.addEventListener('click', function () {
-        const postId = this.getAttribute('data-post-id');
+ function toggleComments(postId) {
+    const commentsSection = document.getElementById(`comments-${postId}`);
+    if (commentsSection) {
+        commentsSection.style.display = commentsSection.style.display === 'block' ? 'none' : 'block';
+    }
+}
 
-        fetch('likeHandler.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ post_id: postId })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                const likeCount = this.querySelector('.like-count');
-                if (data.action === 'liked') {
-                    likeCount.textContent = parseInt(likeCount.textContent) + 1;
-                } else if (data.action === 'unliked') {
-                    likeCount.textContent = parseInt(likeCount.textContent) - 1;
-                }
-            } else {
-                console.error(data.message);
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    });
-});
-
-
-    // Handle comments
-    document.querySelectorAll(".comment-form").forEach(form => {
-        form.addEventListener("submit", e => {
-            e.preventDefault();
-            const postId = form.querySelector("[name='post_id']").value;
-            const comment = form.querySelector("[name='comment']").value;
-
-            fetch("comments.php", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: `post_id=${postId}&comment=${encodeURIComponent(comment)}`
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === "success") {
-                        // Append new comment dynamically
-                        const commentsSection = document.querySelector(`#comments-${postId}`);
-                        const newComment = document.createElement("div");
-                        newComment.classList.add("comment");
-                        newComment.innerHTML = `
-                            <img src="images-data/${data.profile_image}" alt="Profile Image" class="profile-pic">
-                            <strong>${data.firstname} ${data.lastname}:</strong> 
-                            <p>${comment}</p>
-                        `;
-                        commentsSection.appendChild(newComment);
-                        form.reset();
-                    }
-                });
-        });
-    });
-
-// function toggleLike(button, postId) {
-//     // Perform AJAX request to update like count
-//     console.log(`Liked post ID: ${postId}`);
-//     const likeCount = button.querySelector('.like-count');
-//     likeCount.textContent = parseInt(likeCount.textContent) + 1; // Example update
-// }
-
-// function toggleComments(postId) {
-//     const commentsSection = document.getElementById(`comments-${postId}`);
-//     commentsSection.style.display = commentsSection.style.display === 'block' ? 'none' : 'block';
-// }
 
     </script>
 </body>

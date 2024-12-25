@@ -211,6 +211,7 @@ echo '</form>';
             }
             echo '</div>';
         }
+        
 
         echo '</div>'; // End of comment-section
         echo '</div>'; // End of post

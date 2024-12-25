@@ -186,3 +186,20 @@ function deletePost(postId) {
             .catch(error => console.error('Error:', error));
     }
 }
+
+    function deletePost(postId) {
+        if (confirm('Are you sure you want to delete this post?')) {
+            // Send an AJAX request to delete the post
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', 'delete_post.php', true);  // Point to delete_post.php
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    alert(xhr.responseText);  // Display response from server
+                    location.reload();  // Reload the page to reflect changes
+                }
+            };
+            xhr.send('delete_post_id=' + postId);  // Send the post ID to delete
+        }
+    }
+

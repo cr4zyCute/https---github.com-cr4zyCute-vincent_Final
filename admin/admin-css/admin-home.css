@@ -252,12 +252,28 @@
     margin: 0;
 }
 
-
+.post-header .delete-container{
+    position: relative;
+    left: 94%;
+}
+.delete-button{
+    background-color: transparent;
+    font-size: 15px;
+    color: red;
+    border: none;
+}
+.delete-button:hover{
+    color: black;
+    border: none;
+}
 .profile-pic {
     width: 50px !important;
     height: 50px !important;
     border-radius: 50% !important;
     object-fit: cover !important;
+    position: relative;
+    right: 2%;
+
 }
 
 .profile-post {
@@ -270,7 +286,8 @@
     margin-left: 0px;
     padding-right: 15px;
     display: flex;
-  
+    position: relative;
+    right: 2%;
     flex-direction: column;
 }
 
