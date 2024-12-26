@@ -3,8 +3,11 @@ session_start();
 include 'database/dbcon.php';
 
 $error_message = ""; 
+$show_popup = false; // By default, don't show the popup
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
+    $show_popup = true; // Show popup after form submission
+
     if (!empty($_POST['email']) && !empty($_POST['password'])) {
         $email = mysqli_real_escape_string($conn, $_POST['email']);
         $password = mysqli_real_escape_string($conn, $_POST['password']);
@@ -17,25 +20,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
         } else {
             $user = mysqli_fetch_assoc($email_check_result);
             if ($user['password'] === $password) {
-    $_SESSION['student_id'] = $user['student_id'];
-    $_SESSION['email'] = $user['email'];
-    echo '
-    <link rel="stylesheet" href="./css/loading.css" />
-    <div class="loading-page">
-        <div class="name-container">
-            <div class="image-logo"><img src="./images/bsitlogo.png" alt=""></div>
-            <h2>Loading</h2>
-            <div class="logo-name"><img src="./images/Loading-gif-unscreen.gif" alt="Loading Animation"></div>
-        </div>
-    </div>
-    <script>
-        setTimeout(function() {
-            window.location.href = "studentProfile.php";
-        }, 3000);
-    </script>';
-    exit();
-}
- else {
+                $_SESSION['student_id'] = $user['student_id'];
+                $_SESSION['email'] = $user['email'];
+                echo '
+                <link rel="stylesheet" href="./css/loading.css" />
+                <div class="loading-page">
+                    <div class="name-container">
+                        <div class="image-logo"><img src="./images/bsitlogo.png" alt=""></div>
+                        <h2>Loading</h2>
+                        <div class="logo-name"><img src="./images/Loading-gif-unscreen.gif" alt="Loading Animation"></div>
+                    </div>
+                </div>
+                <script>
+                    setTimeout(function() {
+                        window.location.href = "studentProfile.php";
+                    }, 3000);
+                </script>';
+                exit();
+            } else {
                 $error_message = "Wrong password!";
             }
         }
@@ -44,7 +46,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
     }
 }
 ?>
-
 
 
     <!DOCTYPE html>
@@ -77,12 +78,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
             <li><a href="#about">ABOUT US</a></li>
             <li><a href="#footer">CONTACT</a></li>
         
-            <li class="nav__login"><button style="color: black;" id="login-btn" class="btn">Log In</button></li> 
+            <li class="nav__login"><button onclick="openPopup()" style="color: black;" id="login-btn" class="btn">Log In</button></li> 
         </ul>
     </nav>
 
-<div id="login-modal" class="modal">
-    <div class="modal-content">
+<div class="popup-overlay" id="popupOverlay"></div>
+  <div class="popup" id="loginPopup">
         <div class="login-container">
             <form action="" method="post">
                 <span class="close">&times;</span>
@@ -90,30 +91,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
                     <img src="./images/bsitlogo.png" alt="User Icon">
                 </div>
                 <div class="title">Log in</div>
-
+                    <p id="error-message" style="color:red"><?php echo $error_message; ?></p>
                 <!-- Add `name` attributes for input fields -->
                 <input type="text" name="email" placeholder="Username" required>
                 <input type="password" name="password" placeholder="Password" required>
-                
-                <!-- Error Message -->
-                <?php if (!empty($error_message)) { ?>
-                    <div style="color: red; text-align: center; margin-top: 10px;">
-                        <?= htmlspecialchars($error_message); ?>
-                    </div>
-                <?php } ?>
 
                 <div class="register__here">
                     <p>Don't have an account?</p>
                     <a href="RegistrationForm.php">Register Here!</a>
                 </div>
 
-                <div class="login-button-container">
+               
                     <button type="submit" name="login" class="submit button">Login Now</button>
-                </div>
+               
             </form>
         </div>
     </div>
 </div>
+
         <div id="home" class="container">
         
         <div class="container__right">
@@ -172,5 +167,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
 
         <script src="https://unpkg.com/scrollreveal"></script>
         <script src="./js/index.js"></script>
+<script>
+    const popup = document.getElementById('loginPopup');
+    const overlay = document.getElementById('popupOverlay');
+    const closeBtn = document.querySelector('.close'); // Select the close button
+
+    function openPopup() {
+      popup.classList.add('active');
+      overlay.classList.add('active');
+    }
+
+    function closePopup() {
+      popup.classList.remove('active');
+      overlay.classList.remove('active');
+    }
+
+    // Keep popup open if there's an error message
+    <?php if ($show_popup): ?>
+    openPopup();
+    <?php endif; ?>
+
+    // Add an event listener to the close button to close the popup
+    closeBtn.addEventListener('click', closePopup);
+
+    overlay.addEventListener('click', closePopup); // Also close popup when clicking on the overlay
+    document.addEventListener('DOMContentLoaded', reveal);
+
+document.addEventListener("DOMContentLoaded", function () {
+    const errorMessage = document.getElementById("error-message");
+
+    if (errorMessage) {
+        // Set a timeout to hide the error message after 5 seconds
+        setTimeout(() => {
+            errorMessage.style.display = "none";
+        }, 3000); 
+    }
+    });
+</script>
+
     </body>
     </html>

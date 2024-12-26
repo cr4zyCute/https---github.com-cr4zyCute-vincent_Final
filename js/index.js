@@ -67,19 +67,29 @@ function reveal() {
         }
     }
 }
-const modal = document.getElementById("login-modal");
-const closeModal = document.querySelector(".close"); // Select the element with the class "close"
-const loginBtn = document.getElementById("login-btn");
+// const modal = document.getElementById("login-modal");
+// const closeModal = document.querySelector(".close"); 
+// const loginBtn = document.getElementById("login-btn");
 
-// Show modal when login button is clicked
-loginBtn.onclick = function () {
-  modal.style.display = "block";
-};
 
-// Close modal when close button is clicked
-closeModal.onclick = function () {
-  modal.style.display = "none";
-};
+// loginBtn.onclick = function () {
+//   modal.style.display = "block";
+// };
 
-// Initialize reveal on page load
-document.addEventListener('DOMContentLoaded', reveal);
+// closeModal.onclick = function () {
+//   modal.style.display = "none";
+// };
+
+// document.addEventListener('DOMContentLoaded', reveal);
+
+// document.addEventListener("DOMContentLoaded", function () {
+//     const errorMessage = document.getElementById("error_message");
+
+//     if (errorMessage) {
+//         // Set a timeout to hide the error message after 5 seconds
+//         setTimeout(() => {
+//             errorMessage.style.display = "none";
+//         }, 3000); 
+//     }
+// });
+
