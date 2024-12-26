@@ -7,7 +7,7 @@ if (!isset($_SESSION['admin_id'])) {
     exit();
 }
 
-$admin_id = $_SESSION['admin_id']; // Correctly fetch admin_id
+$admin_id = $_SESSION['id']; // Correctly fetch admin_id
 $content = mysqli_real_escape_string($conn, $_POST['content']);
 $mediaPaths = [];
 

@@ -63,8 +63,6 @@ if ($result->num_rows > 0) {
     }
 }
 
-
-
 ?>
 
 <!DOCTYPE html>
@@ -252,18 +250,45 @@ function timeAgo($datetime) {
 
         </div>
 
-        <div class="right-section">
-            <div class="announcement">
+     <div class="right-section">
+        <center> <h3>Announcement</h3></center>
+
+        <?php 
+        
+$sql = "SELECT a.title, a.content, a.created_at, ad.admin_username AS admin_username ,ad.admin_name AS admin_name 
+        FROM announcements a 
+        JOIN admin ad ON a.admin_id = ad.id 
+        ORDER BY a.created_at DESC";
+$result = mysqli_query($conn, $sql);
+
+// Fetch student details (if needed)
+$query = "SELECT * FROM student WHERE id = '$student_id'";
+$studentResult = mysqli_query($conn, $query);
+
+if ($studentResult && mysqli_num_rows($studentResult) > 0) {
+    $student = mysqli_fetch_assoc($studentResult);
+} else {
+    echo "Student profile not found.";
+    exit();
+}
+         ?>
+    <div class="announcement">
+        <?php if (mysqli_num_rows($result) > 0): ?>
+            <?php while ($row = mysqli_fetch_assoc($result)): ?>
                 <div class="card">
-                    <strong>Nikki Sixx Acoosta</strong> <span>1hr</span>
-                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Veritatis totam autem.</p>
+                    <strong><?php echo htmlspecialchars($row['admin_name']); ?></strong><br>
+                    <small style="margin: 0px;" ><?php echo htmlspecialchars($row['admin_username']); ?></small>
+                    <p><?php echo htmlspecialchars($row['content']); ?></p>
+                    <small><?php echo date("F j, Y, g:i a", strtotime($row['created_at'])); ?></small>
                 </div>
-                <div class="card">
-                    <strong>Nikki Sixx Acoosta</strong> <span>1hr</span>
-                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Veritatis totam autem.</p>
-                </div>
-            </div>
-        </div>
+            <?php endwhile; ?>
+        <?php else: ?>
+            <p>No announcements available.</p>
+        <?php endif; ?>
+    </div>
+</div>
+
+
     </div>
     <script src="./js/home.js" ></script>
     <script>

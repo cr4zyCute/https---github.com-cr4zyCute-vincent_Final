@@ -5,6 +5,7 @@ session_start();
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $admin_username = $_POST['admin_username'];
+    $admin_name = $_POST['admin_name'];
     $admin_email = $_POST['admin_email'];
     $admin_password = $_POST['admin_password'];
 
@@ -21,8 +22,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if (move_uploaded_file($_FILES['adminProfile']['tmp_name'], $targetFilePath)) {
             // Insert into database
-            $stmt = $conn->prepare("INSERT INTO admin (adminProfile, admin_username, admin_email, admin_password) VALUES (?, ?, ?, ?)");
-            $stmt->bind_param("ssss", $targetFilePath, $admin_username, $admin_email, $admin_password);
+            $stmt = $conn->prepare("INSERT INTO admin (adminProfile, admin_username, admin_email, admin_password,admin_name) VALUES (?, ?, ?, ?, ?)");
+            $stmt->bind_param("sssss", $targetFilePath, $admin_username, $admin_email, $admin_password,$admin_name);
 
             if ($stmt->execute()) {
                 echo "<p style='color: green;'>Admin registered successfully!</p>";
@@ -114,6 +115,9 @@ $conn->close();
     </select>
             <label for="admin_email">Email:</label>
             <input type="email" id="admin_email" name="admin_email" required>
+            
+            <label for="admin_name">Name:</label>
+            <input type="text" id="admin_name" name="admin_name" required>
 
             <label for="admin_password">Password:</label>
             <input type="password" id="admin_password" name="admin_password" required>

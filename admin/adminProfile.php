@@ -11,7 +11,7 @@ if (!isset($_SESSION['admin_id'])) {
 $admin_id = $_SESSION['admin_id'];
 
 // Fetch admin details
-$query = "SELECT * FROM admin WHERE admin_id = '$admin_id'";
+$query = "SELECT * FROM admin WHERE id = '$admin_id'";
 $result = mysqli_query($conn, $query);
 if ($result && mysqli_num_rows($result) > 0) {
     $admin = mysqli_fetch_assoc($result);

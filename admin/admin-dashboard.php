@@ -8,7 +8,7 @@ if (!isset($_SESSION['admin_id'])) {
 }
 $admin_id = $_SESSION['admin_id'];
 
-$query = "SELECT * FROM admin WHERE admin_id = '$admin_id'";
+$query = "SELECT * FROM admin WHERE id = '$admin_id'";
 $result = mysqli_query($conn, $query);
 if ($result && mysqli_num_rows($result) > 0) {
     $admin = mysqli_fetch_assoc($result);
@@ -16,6 +16,12 @@ if ($result && mysqli_num_rows($result) > 0) {
     echo "Admin profile not found.";
     exit();
 }
+
+// Query to fetch student details for the 'Manage Student' section
+$student_query = "SELECT id, firstname, lastname, yearlvl, section, image FROM student";
+$student_result = $conn->query($student_query);
+
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -36,7 +42,7 @@ if ($result && mysqli_num_rows($result) > 0) {
             <li><a href="#" onclick="showSection('home')" aria-controls="home">Home</a></li>
             <li><a href="#" onclick="showSection('student')" aria-controls="student">Manage Student</a></li>
             <li><a href="#" onclick="showSection('settings')" aria-controls="settings">Settings</a></li>
-            <li><a href="#" onclick="showSection('reports')" aria-controls="reports">Reports</a></li>
+            <li><a href="#" onclick="showSection('announcements')" aria-controls="announcements">announcements</a></li>
         </ul>
         <div class="footer">
             &copy; 2024 Admin Panel
@@ -53,7 +59,8 @@ if ($result && mysqli_num_rows($result) > 0) {
         <a href="#home"><i class="bi bi-house-door-fill"></i></a>
         
         <a href="messages.html"><i class="bi bi-envelope-fill"></i></a>
-        <a href="announcements.html"><i class="bi bi-megaphone-fill announcement-icon"></i></a>
+        <a href="#" onclick="showSection('announcements')" aria-controls="announcements"><i class="bi bi-megaphone-fill announcement-icon"></i></a>
+
           <div class="dropdown">
             <a href="./adminProfile.php">
                  <img src="../images-data/<?= htmlspecialchars($admin['adminProfile']) ?>" alt="Profile Image" class="profile-image" >
@@ -316,17 +323,119 @@ function timeAgo($datetime) {
 </div>
         </div>
         </section>
+
+
         <section id="student">
-            <h1>Manage Student</h1>
-            <p>Here you can add, edit, or delete user accounts.</p>
-        </section>
+    <h1>Manage Student</h1>
+    <div class="search-container">
+        <input type="text" id="search-input" placeholder="Search students...">
+        <button id="search-btn">Search</button>
+    </div>
+
+    <div class="student-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>Profile</th>
+                    <th>Name</th>
+                    <th>Year Level</th>
+                    <th>Section</th>
+                    <th>Email</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+ <tbody>
+    <?php if ($student_result && $student_result->num_rows > 0): ?>
+        <?php while ($row = $student_result->fetch_assoc()): ?>
+            <tr>
+                <td>
+                    <?php if (!empty($row['image'])): ?>
+                        <img src="../images-data/<?php echo $row['image']; ?>" alt="Profile Picture" class="profile-table">
+                    <?php else: ?>
+                        <img src="../images-data/default-profile.jpg" alt="Default Profile" class="profile-table">
+                    <?php endif; ?>
+                </td>
+                <td><?php echo htmlspecialchars($row['firstname']); ?></td>
+                <td><?php echo htmlspecialchars($row['lastname']); ?></td>
+                <td><?php echo htmlspecialchars($row['yearlvl']); ?></td>
+                <td><?php echo htmlspecialchars($row['section']); ?></td>
+                <td>
+                    <button class="edit-btn"><a href="./studentUpdate.php"><i class="bi bi-pencil-square"></i></a></button>
+                    <button class="delete-btn">🗑️</button>
+                </td>
+            </tr>
+        <?php endwhile; ?>
+    <?php else: ?>
+        <tr>
+            <td colspan="6">No students found.</td>
+        </tr>
+    <?php endif; ?>
+</tbody>
+
+        </table>
+    </div>
+    
+</section>
+
         <section id="settings">
             <h1>Settings</h1>
             <p>Customize your admin panel settings here.</p>
         </section>
-        <section id="reports">
+        <section id="announcements">
             <h1>Reports</h1>
             <p>View detailed reports and analytics.</p>
+            <form action="postAnnouncement.php" method="POST">
+    <label for="title">Title:</label>
+    <input type="text" id="title" name="title" required>
+    
+    <label for="content">Content:</label>
+    <textarea id="content" name="content" required></textarea>
+    
+    <button type="submit">Post Announcement</button>
+</form>
+             <div class="right-section">
+        <?php 
+        
+$sql = "SELECT a.id, a.title, a.content, a.created_at, ad.admin_email AS admin_username 
+        FROM announcements a 
+        JOIN admin ad ON a.admin_id = ad.id 
+        ORDER BY a.created_at DESC";
+
+$result = mysqli_query($conn, $sql);
+
+// Fetch student details (if needed)
+$query = "SELECT * FROM admin WHERE id = '$admin_id'";
+$studentResult = mysqli_query($conn, $query);
+
+if ($studentResult && mysqli_num_rows($studentResult) > 0) {
+    $student = mysqli_fetch_assoc($studentResult);
+} else {
+    echo "Student profile not found.";
+    exit();
+}
+         ?>
+         
+    <div class="announcement">
+       <?php if (mysqli_num_rows($result) > 0): ?>
+    <?php while ($row = mysqli_fetch_assoc($result)): ?>
+        <div class="card">
+            <strong><?php echo htmlspecialchars($row['admin_username']); ?></strong>
+            <p><?php echo htmlspecialchars($row['content']); ?></p>
+            <small><?php echo date("F j, Y, g:i a", strtotime($row['created_at'])); ?></small>
+            
+            <!-- Add Delete Button -->
+            <form action="deleteAnnouncement.php" method="POST" style="display:inline;">
+                <input type="hidden" name="announcement_id" value="<?php echo $row['id']; ?>">
+                <button type="submit" class="delete-btn">Delete</button>
+            </form>
+        </div>
+    <?php endwhile; ?>
+<?php else: ?>
+    <p>No announcements available.</p>
+<?php endif; ?>
+
+    </div>
+</div>
         </section>
     </div>
     <script src="../js/home.js" ></script>
