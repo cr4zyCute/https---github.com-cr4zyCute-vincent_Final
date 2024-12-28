@@ -22,35 +22,42 @@
     });
 
     // Handle comments
-    document.querySelectorAll(".comment-form").forEach(form => {
-        form.addEventListener("submit", e => {
-            e.preventDefault();
-            const postId = form.querySelector("[name='post_id']").value;
-            const comment = form.querySelector("[name='comment']").value;
+// Handle comments
+document.querySelectorAll(".comment-form").forEach(form => {
+    form.addEventListener("submit", e => {
+        e.preventDefault();
 
-            fetch("comments.php", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: `post_id=${postId}&comment=${encodeURIComponent(comment)}`
+        const postId = form.querySelector("[name='post_id']").value;
+        const comment = form.querySelector("[name='comment']").value;
+
+        fetch("comment_post.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: `post_id=${postId}&comment=${encodeURIComponent(comment)}`
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    // Append new comment dynamically
+                    const commentsSection = document.querySelector(`#comments-${postId}`);
+                    const newComment = document.createElement("div");
+                    newComment.classList.add("comment");
+                    newComment.innerHTML = `
+                        <img src="images-data/${data.profile_image}" alt="Profile Image" class="profile-pic">
+                        <strong>${data.firstname} ${data.lastname}:</strong> 
+                        <p>${comment}</p>
+                    `;
+                    commentsSection.appendChild(newComment);
+                    form.reset();
+                } else {
+                    console.error(data.message);
+                    alert("Failed to post comment: " + data.message);
+                }
             })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === "success") {
-                        // Append new comment dynamically
-                        const commentsSection = document.querySelector(`#comments-${postId}`);
-                        const newComment = document.createElement("div");
-                        newComment.classList.add("comment");
-                        newComment.innerHTML = `
-                            <img src="images-data/${data.profile_image}" alt="Profile Image" class="profile-pic">
-                            <strong>${data.firstname} ${data.lastname}:</strong> 
-                            <p>${comment}</p>
-                        `;
-                        commentsSection.appendChild(newComment);
-                        form.reset();
-                    }
-                });
-        });
+            .catch(error => console.error("Error:", error));
     });
+});
+
 });
 
  function openPopup() {

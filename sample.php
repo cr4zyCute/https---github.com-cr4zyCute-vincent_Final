@@ -134,36 +134,39 @@ if ($result->num_rows > 0) {
 </div>
        <div class="left-section">
     <?php
-function timeAgo($datetime) {
+// Set the timezone to the Philippines
+date_default_timezone_set("Asia/Manila");
 
-    $timestamp = strtotime($datetime);
+function timeAgo($time, $tense = 'ago') {
+    static $periods = array('year', 'month', 'day', 'hour', 'minute');
 
-    if ($timestamp === false) {
-        return "Invalid datetime format";
+    if ((strtotime($time) <= 0)) {
+        trigger_error("Wrong time format: $time", E_USER_ERROR);
     }
 
-    $currentTime = time();
-    $timeDifference = $currentTime - $timestamp;
+    $now = new DateTime('now', new DateTimeZone('Asia/Manila')); // Ensure timezone is set
+    $then = new DateTime($time, new DateTimeZone('Asia/Manila'));
+    $diff = $now->diff($then)->format('%y %m %d %h %i');
+    $diff = explode(' ', $diff);
+    $diff = array_combine($periods, $diff);
+    $diff = array_filter($diff); // Remove zero values
 
-    $minutes = floor($timeDifference / 60);
-    $hours = floor($minutes / 60);
-    $days = floor($hours / 24);
+    $period = key($diff); // Get the first non-zero period
+    $value = current($diff); // Get the corresponding value
 
-    if ($timeDifference < 60) {
-        return "Just now";
-    } elseif ($minutes == 1) {
-        return "1 minute ago";
-    } elseif ($minutes < 60) {
-        return "$minutes minutes ago";
-    } elseif ($hours == 1) {
-        return "1 hour ago";
-    } elseif ($hours < 24) {
-        return "$hours hours ago";
-    } elseif ($days == 1) {
-        return "1 day ago";
-    } else {
-        return "$days days ago";
+    if ($period === 'minute' && $value == 0) {
+        // If less than 1 minute, show as "1 minute ago"
+        $value = 1;
     }
+
+    if ($value) {
+        if ($value == 1) {
+            $period = rtrim($period, 's'); // Singular (remove 's')
+        }
+        return "$value $period $tense";
+    }
+
+    return "just now"; // Fallback for any unexpected cases
 }
 
     $query = "SELECT p.*, s.firstname, s.lastname, s.image AS profile_image, 
@@ -185,7 +188,7 @@ function timeAgo($datetime) {
             echo '<div class="post-user-info">';
             echo '<strong>' . htmlspecialchars($post['firstname'] . ' ' . $post['lastname']) . '</strong>';
             echo '<span><i class="bi bi-mortarboard-fill"></i> Student</span>';
-      echo '<span class="post-time">' . htmlspecialchars(timeAgo($post['created_at'])) . '</span>';
+            echo '<span class="post-time">' . htmlspecialchars(timeAgo($post['created_at'])) . '</span>';
 
             echo '</div>';
             echo '</div>';
@@ -205,14 +208,15 @@ function timeAgo($datetime) {
                     echo '<textarea name="comment" placeholder="Write a comment..." required></textarea>';
                     echo '<button type="submit">Post Comment</button>';
                     echo '</form>';
-                                    echo '<div class="post-actions">';
-                    echo '<form method="POST" action="like_post.php" class="like-form">';
-                        echo '<button class="like-button" onclick="toggleLike(this, ' . htmlspecialchars($post['id']) . ')">';
+                    
+                        echo '<div class="post-actions">';
+                        echo '<form method="POST" action="like_post.php" class="like-form">';
+                        echo '<button type="submit" class="like-button">Like (' . $post['like_count'] . ')';
+                        echo '<input type="hidden" class="like-button" name="post_id" value="' . htmlspecialchars($post['id']) . '">';
                         echo '<i class="bi bi-balloon-heart-fill" style="color: red;"></i> ';
-                        echo '<span>Like</span> (<span class="like-count">' . htmlspecialchars($post['like_count']) . '</span>)';
-                        echo '</button>';
-                    echo '</form>';
-
+                        echo '';
+                        echo '</button>';                            
+                        echo '</form>';
                     echo '<button class="comment-button" onclick="toggleComments(' . htmlspecialchars($post['id']) . ')">';
                     echo '<i class="bi bi-chat-square-dots-fill" style="color: blue;"></i> ';
                     echo '<span>Comment</span> (<span class="comment-count">' . htmlspecialchars($post['comment_count']) . '</span>)';
@@ -220,34 +224,34 @@ function timeAgo($datetime) {
                     echo '</div>';
 
             echo '</div>';
-            $commentQuery = "SELECT c.*, s.firstname, s.lastname, s.image AS profile_image
+         $commentQuery = "SELECT c.*, s.firstname, s.lastname, s.image AS profile_image
                          FROM comments c 
                          JOIN student s ON c.student_id = s.id 
                          WHERE c.post_id = " . intval($post['id']) . " 
                          ORDER BY c.created_at ASC";
-                         $commentResult = mysqli_query($conn, $commentQuery);
-                         
+        $commentResult = mysqli_query($conn, $commentQuery);
                          echo '<div class="comments" id="comments-' . htmlspecialchars($post['id']) . '">';
                          echo '<h2>Comments</h2>';
-        if ($commentResult && mysqli_num_rows($commentResult) > 0) {
+      if ($commentResult && mysqli_num_rows($commentResult) > 0) {
             while ($comment = mysqli_fetch_assoc($commentResult)) {
                 echo '<div class="comment">';
                 echo '<img src="images-data/' . htmlspecialchars($comment['profile_image']) . '" alt="Profile Image" class="profile-pic">';
                 echo '<strong>' . htmlspecialchars($comment['firstname'] . ' ' . $comment['lastname']) . ':</strong> ';
+                echo '<span class="comment-time">' . htmlspecialchars(timeAgo($comment['created_at'])) . '</span>';
                 echo '<p>' . htmlspecialchars($comment['content']) . '</p>';
+                
                 echo '</div>';
+                
             }
+      } else {
+            echo '<p>No comments available.</p>';
         }
         echo '</div>';
-
-
-
             echo '</div>'; 
         }
     }
     ?>
 </div>
-
         </div>
 
      <div class="right-section">
@@ -255,7 +259,7 @@ function timeAgo($datetime) {
 
         <?php 
         
-$sql = "SELECT a.title, a.content, a.created_at, ad.admin_username AS admin_username ,ad.admin_name AS admin_name 
+$sql = "SELECT a.title, a.content, a.created_at, ad.admin_username AS admin_username ,ad.admin_name AS admin_name
         FROM announcements a 
         JOIN admin ad ON a.admin_id = ad.id 
         ORDER BY a.created_at DESC";
@@ -271,15 +275,22 @@ if ($studentResult && mysqli_num_rows($studentResult) > 0) {
     echo "Student profile not found.";
     exit();
 }
-         ?>
+         ?> 
     <div class="announcement">
         <?php if (mysqli_num_rows($result) > 0): ?>
             <?php while ($row = mysqli_fetch_assoc($result)): ?>
                 <div class="card">
-                    <strong><?php echo htmlspecialchars($row['admin_name']); ?></strong><br>
-                    <small style="margin: 0px;" ><?php echo htmlspecialchars($row['admin_username']); ?></small>
-                    <p><?php echo htmlspecialchars($row['content']); ?></p>
-                    <small><?php echo date("F j, Y, g:i a", strtotime($row['created_at'])); ?></small>
+                     <div class="profile-info">
+                    <strong><?php echo htmlspecialchars($row['admin_name']); ?></strong>
+                    <small class="role">
+                       <i class="bi bi-people-fill"></i>
+                       <small style="margin: 0px;" ><?php echo htmlspecialchars($row['admin_username']); ?></small>
+                    </small>
+                    <small class="time"><?php echo date("F j, Y, g:i a", strtotime($row['created_at'])); ?></small>
+                     <strong><?php echo htmlspecialchars($row['title']); ?></strong>
+                     <p><?php echo htmlspecialchars($row['content']); ?></p>
+                </div>
+                    
                 </div>
             <?php endwhile; ?>
         <?php else: ?>
@@ -290,7 +301,9 @@ if ($studentResult && mysqli_num_rows($studentResult) > 0) {
 
 
     </div>
+
     <script src="./js/home.js" ></script>
+    
     <script>
          
  function toggleComments(postId) {

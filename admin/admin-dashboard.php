@@ -121,7 +121,7 @@ if ($result->num_rows > 0) {
              <p><?php echo $fourth_year_students; ?></p>
         </div>
         <div class="dashboard-box">
-            <h3>System Alerts</h3>
+            <h3>Total Post</h3>
             <p>3</p>
         </div>
     </div>
@@ -327,6 +327,7 @@ function timeAgo($datetime) {
 
         <section id="student">
     <h1>Manage Student</h1>
+    <a href="../RegistrationForm.php"><button>add a student</button></a>
     <div class="search-container">
         <input type="text" id="search-input" placeholder="Search students...">
         <button id="search-btn">Search</button>
@@ -396,7 +397,7 @@ function timeAgo($datetime) {
              <div class="right-section">
         <?php 
         
-$sql = "SELECT a.id, a.title, a.content, a.created_at, ad.admin_email AS admin_username 
+$sql = "SELECT a.title, a.content, a.created_at, ad.admin_username AS admin_username ,ad.admin_name AS admin_name 
         FROM announcements a 
         JOIN admin ad ON a.admin_id = ad.id 
         ORDER BY a.created_at DESC";
@@ -415,25 +416,25 @@ if ($studentResult && mysqli_num_rows($studentResult) > 0) {
 }
          ?>
          
-    <div class="announcement">
-       <?php if (mysqli_num_rows($result) > 0): ?>
-    <?php while ($row = mysqli_fetch_assoc($result)): ?>
-        <div class="card">
-            <strong><?php echo htmlspecialchars($row['admin_username']); ?></strong>
-            <p><?php echo htmlspecialchars($row['content']); ?></p>
-            <small><?php echo date("F j, Y, g:i a", strtotime($row['created_at'])); ?></small>
-            
-            <!-- Add Delete Button -->
-            <form action="deleteAnnouncement.php" method="POST" style="display:inline;">
-                <input type="hidden" name="announcement_id" value="<?php echo $row['id']; ?>">
-                <button type="submit" class="delete-btn">Delete</button>
-            </form>
-        </div>
-    <?php endwhile; ?>
-<?php else: ?>
-    <p>No announcements available.</p>
-<?php endif; ?>
-
+ <div class="announcement">
+        <?php if (mysqli_num_rows($result) > 0): ?>
+            <?php while ($row = mysqli_fetch_assoc($result)): ?>
+                <div class="card">
+                     <div class="profile-info">
+                    <strong><?php echo htmlspecialchars($row['admin_name']); ?></strong>
+                    <small class="role">
+                       <i class="bi bi-people-fill"></i>
+                       <small style="margin: 0px;" ><?php echo htmlspecialchars($row['admin_username']); ?></small>
+                    </small>
+                    <small class="time"><?php echo date("F j, Y, g:i a", strtotime($row['created_at'])); ?></small>
+                     <p><?php echo htmlspecialchars($row['content']); ?></p>
+                </div>
+                    
+                </div>
+            <?php endwhile; ?>
+        <?php else: ?>
+            <p>No announcements available.</p>
+        <?php endif; ?>
     </div>
 </div>
         </section>

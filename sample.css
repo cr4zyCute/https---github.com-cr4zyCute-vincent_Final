@@ -326,6 +326,7 @@
     justify-content: space-around;
 }
 
+
 .like-button,
 .comment-button {
     background-color: #f0f0f0;
@@ -648,9 +649,6 @@
     background: #f0f0f0;
 }
 
-
-    
-    
     .media-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr); /* 2 items per row */
@@ -692,3 +690,49 @@
     align-items: center;
     border-radius: 8px;   
     }
+
+.announcement .card {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff; /* Light background */
+    color: #333; /* Dark text */
+}
+
+.profile-info strong {
+    font-size: 1rem; /* Name size */
+    margin-bottom: 2px;
+    display: block; /* Ensures line break */
+}
+
+.profile-info .role {
+    font-size: 0.85rem; /* Role size */
+    color: #666; /* Subtle color */
+    display: flex;
+    align-items: center;
+    margin-bottom: 2px;
+}
+
+.profile-info .role i {
+    margin-right: 5px; /* Space between icon and text */
+}
+
+.profile-info .time {
+    font-size: 0.8rem; /* Time size */
+    color: #999; /* Lighter color */
+}
+
+.card {
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+.comment-time {
+    font-size: 0.9em; /* Smaller text */
+    color: #888; /* Light grey color */
+    margin-top: 5px; /* Space above the timestamp */
+    display: block; /* Ensures it appears on a new line */
+    font-style: italic; /* Italic style for a subtle effect */
+    text-align: right; /* Aligns the time to the right */
+}
