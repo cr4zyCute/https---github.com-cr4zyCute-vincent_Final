@@ -1,57 +1,72 @@
 <?php
 include 'database/dbcon.php';
-
 session_start();
 
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Sanitize and retrieve POST data
     $firstname = mysqli_real_escape_string($conn, $_POST['firstname']);
     $middlename = mysqli_real_escape_string($conn, $_POST['middlename']);
     $lastname = mysqli_real_escape_string($conn, $_POST['lastname']);
-    $age = mysqli_real_escape_string($conn, $_POST['age']);
-    $gender = mysqli_real_escape_string($conn, $_POST['gender']);
-    $contact = mysqli_real_escape_string($conn, $_POST['contact']);
-    $address = mysqli_real_escape_string($conn, $_POST['address']);
-    $yearlvl = mysqli_real_escape_string($conn, $_POST['yearlvl']);
-    $section = mysqli_real_escape_string($conn, $_POST['section']);
-
     $email = mysqli_real_escape_string($conn, $_POST['email']);
-    $password = $_POST['password'];
+    $password = $_POST['password']; // Hash the password
+    $admin_notified = 0; // Default value for admin notification
+    $approved = 0; // Default value for student approval
 
+    // File upload handling
     $file_name = '';
- if (isset($_FILES['profilePicture']) && $_FILES['profilePicture']['error'] == 0) {
-    $file_name = $_FILES['profilePicture']['name'];
-    $tempname = $_FILES['profilePicture']['tmp_name'];
-    $folder = 'images-data/' . $file_name;
+    if (isset($_FILES['profilePicture']) && $_FILES['profilePicture']['error'] == 0) {
+        $file_name = basename($_FILES['profilePicture']['name']);
+        $tempname = $_FILES['profilePicture']['tmp_name'];
+        $folder = 'images-data/' . $file_name;
 
-    if (!move_uploaded_file($tempname, $folder)) {
-        echo "Failed to upload image.";
-        exit();
+        // Validate and move uploaded file
+        $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
+        if (in_array(mime_content_type($tempname), $allowed_types)) {
+            if (!move_uploaded_file($tempname, $folder)) {
+                echo "Failed to upload image.";
+                exit();
+            }
+        } else {
+            echo "Invalid image file type.";
+            exit();
+        }
     }
-}
-    
-    $sql = "INSERT INTO student (firstname, middlename, lastname, age, gender, contact, address, image, yearlvl, section) 
-            VALUES ('$firstname', '$middlename', '$lastname', '$age', '$gender', '$contact', '$address', '$file_name', '$yearlvl', '$section')";
+
+    // Insert student data
+    $sql = "INSERT INTO student (firstname, middlename, lastname, image, approved, admin_notified) 
+            VALUES ('$firstname', '$middlename', '$lastname', '$file_name', '$approved', '$admin_notified')";
 
     if (mysqli_query($conn, $sql)) {
-        $student_id = mysqli_insert_id($conn);
+        $student_id = mysqli_insert_id($conn); // Get the last inserted ID
 
+        // Insert credentials data
         $credentials_sql = "INSERT INTO credentials (student_id, email, password) 
                             VALUES ('$student_id', '$email', '$password')";
 
         if (mysqli_query($conn, $credentials_sql)) {
-            echo "Student added successfully!";
-            header("Location: RegistrationForm.php?id=$id&update=success");
-            exit();
+            // Add a notification for the admin
+            $notification_message = "A new student has registered: $firstname ($email)";
+            $notification_sql = "INSERT INTO notifications (message, student_id, created_at, is_read) 
+                                 VALUES ('$notification_message', '$student_id', NOW(), 0)";
+
+            if (mysqli_query($conn, $notification_sql)) {
+                // Redirect with success message
+                header("Location: RegistrationForm.php?update=success");
+                exit();
+            } else {
+                echo "Error in adding notification: " . mysqli_error($conn);
+            }
         } else {
-            echo "Error in credentials: " . mysqli_error($conn);
+            echo "Error in adding credentials: " . mysqli_error($conn);
         }
     } else {
-        echo "Error in student table: " . mysqli_error($conn);
+        echo "Error in adding student: " . mysqli_error($conn);
     }
-    mysqli_close($conn);
+
+    mysqli_close($conn); // Close the database connection
 }
 ?>
 <!DOCTYPE html>
@@ -86,16 +101,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <label for="lastname">Lastname:</label>
                             <input type="text" id="lastname" name="lastname">
                         </div>
-                        <div class="gender">
+                        <!-- <div class="gender">
                             <label for="gender">Gender:</label>
                             <label><input type="radio" name="gender" value="Male"> Male</label>
                             <label><input type="radio" name="gender" value="Female"> Female</label>
                             <label><input type="radio" name="gender" value="Others"> Others</label>
-                        </div>
+                        </div> -->
                         <button type="button" class="next-btn"><i class="fas fa-chevron-right"></i></button>
                     </div>
 
-                    <div class="form-step">
+                    <!-- <div class="form-step">
                         <div class="form-group">
                             <label for="age">Age:</label>
                             <input type="number" id="age" name="age">
@@ -126,7 +141,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <button type="button" class="prev-btn"><i class="fas fa-chevron-left"></i></button>
                             <button type="button" class="next-btn"><i class="fas fa-chevron-right"></i></button>
                         </div>
-                    </div>
+                    </div> -->
 
                     <div class="form-step">
                         <div class="form-group">

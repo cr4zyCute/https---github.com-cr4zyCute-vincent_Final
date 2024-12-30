@@ -28,12 +28,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $firstname = mysqli_real_escape_string($conn, $_POST['firstname'] ?? $student['firstname']);
     $middlename = mysqli_real_escape_string($conn, $_POST['middlename'] ?? $student['middlename']);
     $lastname = mysqli_real_escape_string($conn, $_POST['lastname'] ?? $student['lastname']);
-    $age = mysqli_real_escape_string($conn, $_POST['age'] ?? $student['age']);
-    $gender = mysqli_real_escape_string($conn, $_POST['gender'] ?? $student['gender']);
-    $contact = mysqli_real_escape_string($conn, $_POST['contact'] ?? $student['contact']); 
-    $yearlvl = mysqli_real_escape_string($conn, $_POST['yearlvl'] ?? $student['yearlvl']); 
-    $section = mysqli_real_escape_string($conn, $_POST['section'] ?? $student['section']); 
-    $address = mysqli_real_escape_string($conn, $_POST['address'] ?? $student['address']);
+    // $age = mysqli_real_escape_string($conn, $_POST['age'] ?? $student['age']);
+    // $gender = mysqli_real_escape_string($conn, $_POST['gender'] ?? $student['gender']);
+    // $contact = mysqli_real_escape_string($conn, $_POST['contact'] ?? $student['contact']); 
+    // $yearlvl = mysqli_real_escape_string($conn, $_POST['yearlvl'] ?? $student['yearlvl']); 
+    // $section = mysqli_real_escape_string($conn, $_POST['section'] ?? $student['section']); 
+    // $address = mysqli_real_escape_string($conn, $_POST['address'] ?? $student['address']);
     $email = mysqli_real_escape_string($conn, $_POST['email'] ?? $student['email']);
     $password = $_POST['password'] ?? $student['password'];
 
@@ -61,12 +61,7 @@ if (!empty($_FILES['profileImage']['name'])) {
             student.firstname = '$firstname',
             student.middlename = '$middlename',
             student.lastname = '$lastname',
-            student.age = '$age',
-            student.gender = '$gender',
-            student.section = '$section',
-            student.contact = '$contact', -- Corrected field
-            student.yearlvl = '$yearlvl', -- Corrected field
-            student.address = '$address',
+
             credentials.email = '$email',
             credentials.password = '$password'
                $imageQueryPart
@@ -81,7 +76,34 @@ if (!empty($_FILES['profileImage']['name'])) {
         echo "Error updating profile: " . mysqli_error($conn);
     }
 }
+$student_query = $conn->prepare("SELECT approved FROM student WHERE id = ?");
+$student_query->bind_param('i', $student_id);
+$student_query->execute();
+$student_query->bind_result($approved);
+$student_query->fetch();
+$student_query->close();
 
+// Fetch unread notifications for the student
+$notifications_query = $conn->prepare("SELECT message FROM notifications WHERE student_id = ? AND is_read = 0");
+$notifications_query->bind_param('i', $student_id);
+$notifications_query->execute();
+$notifications_result = $notifications_query->get_result();
+
+// Mark notifications as read
+$mark_read_query = $conn->prepare("UPDATE notifications SET is_read = 1 WHERE student_id = ? AND is_read = 0");
+$mark_read_query->bind_param('i', $student_id);
+$mark_read_query->execute();
+
+// Fetch assigned forms for the student
+$forms_query = $conn->prepare("SELECT f.id AS form_id, f.form_name FROM student_forms sf
+                               JOIN forms f ON sf.form_id = f.id
+                               WHERE sf.student_id = ?");
+
+$forms_query->bind_param('i', $student_id);
+$forms_query->execute();
+$forms_result = $forms_query->get_result();
+
+$forms_query->close();
 
 ?>
 
@@ -105,7 +127,26 @@ if (!empty($_FILES['profileImage']['name'])) {
         <div class="logo">BSIT</div>
         <div class="nav-icons">
             <a href="home.php"><i class="bi bi-house-door-fill"></i></a>
-            <a href="#"><i class="bi bi-envelope-fill"></i></a>
+           
+                <div class="dropdown">
+        <button class="open-btn" id="openModalBtn"><i class="bi bi-envelope-fill"></i></button>
+        <div class="dropdown-content">
+            <?php if ($forms_result->num_rows > 0): ?>
+                <ul>
+                    <?php while ($form = $forms_result->fetch_assoc()): ?>
+                        <li>
+                            <?= htmlspecialchars($form['form_name']); ?>
+                            <a href="fill_form.php?form_id=<?= $form['form_id']; ?>">Fill Form</a>
+                            <a href="view_responses.php?form_id=<?= $form['form_id']; ?>">View Responses</a>
+                        </li>
+                    <?php endwhile; ?>
+                </ul>
+            <?php else: ?>
+                <p>No forms assigned yet.</p>
+            <?php endif; ?>
+        </div>
+    </div>
+            
             <div class="dropdown">
             <a href="studentProfile.php">
                  <img src="images-data/<?= htmlspecialchars($student['image']) ?>" alt="Profile Image" class="profile-pic" >
@@ -124,7 +165,12 @@ if (!empty($_FILES['profileImage']['name'])) {
     <div class="profile-info">
         <h1><?= htmlspecialchars($student['firstname'] . ' ' . $student['lastname']) ?> </h1>  <button onclick="openPopup()">Open Profile</button>
         <p><strong>ID:</strong> <?= htmlspecialchars($student['id']) ?></p>
-        <h2><i class="bi bi-mortarboard-fill"></i>Student</h2> 
+        <h2><i class="bi bi-mortarboard-fill"></i>Student</h2> <br>
+        <?php if ($approved): ?>
+        <p>Your account has been approved.</p>
+    <?php else: ?>
+        <p>Your account is awaiting approval.</p>
+    <?php endif; ?>
     </div>
 </div>
 
@@ -134,15 +180,15 @@ if (!empty($_FILES['profileImage']['name'])) {
         <p><strong>First Name:</strong> <?= htmlspecialchars($student['firstname']) ?></p>
         <p><strong>Middle Name:</strong> <?= htmlspecialchars($student['middlename']) ?></p>
         <p><strong>Last Name:</strong> <?= htmlspecialchars($student['lastname']) ?></p>
-       <p><strong>Age:</strong> <?= htmlspecialchars($student['age']) ?></p>
-       <p><strong>Gender:</strong> <?= htmlspecialchars($student['gender']) ?></p>
+       <!-- <p><strong>Age:</strong> <?= htmlspecialchars($student['age']) ?></p>
+       <p><strong>Gender:</strong> <?= htmlspecialchars($student['gender']) ?></p> -->
     </div>
     <div class="card">
         <h3></h3>
-      <p><strong>Year:</strong> <?= htmlspecialchars($student['yearlvl']) ?></p>
+      <!-- <p><strong>Year:</strong> <?= htmlspecialchars($student['yearlvl']) ?></p>
       <p><strong>Section:</strong> <?= htmlspecialchars($student['section']) ?></p>
       <p><strong>Contact:</strong> <?= htmlspecialchars($student['contact']) ?></p>
-      <p><strong>Address:</strong> <?= htmlspecialchars($student['address']) ?></p>
+      <p><strong>Address:</strong> <?= htmlspecialchars($student['address']) ?></p> -->
     </div>
     <div class="card">
         <h3>Credentials</h3>
@@ -240,6 +286,29 @@ if ($result) {
     ?>
 </main>
 
+    <!-- Modal Example -->
+    <div id="messageModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <?php if ($forms_result->num_rows > 0): ?>
+                <ul>
+                    <?php
+                    // Reset result pointer to reuse $forms_result
+                    $forms_result->data_seek(0);
+                    while ($form = $forms_result->fetch_assoc()): ?>
+                        <li>
+                            <?= htmlspecialchars($form['form_name']); ?>
+                            <a href="fill_form.php?form_id=<?= $form['form_id']; ?>">Fill Form</a>
+                            <a href="view_responses.php?form_id=<?= $form['form_id']; ?>">View Responses</a>
+                        </li>
+                    <?php endwhile; ?>
+                </ul>
+            <?php else: ?>
+                <p>No forms assigned yet.</p>
+            <?php endif; ?>
+        </div>
+    </div>
+
 
 <div class="popup-overlay-edit" id="popupOverlay-edit"></div>
 <div class="popup-edit" id="loginPopup">
@@ -271,19 +340,19 @@ if ($result) {
         <label for="lastname">Last Name</label>
         <input type="text" id="lastname" name="lastname" value="<?= htmlspecialchars($student['lastname']) ?>" required>
 
-        <label for="age">Age</label>
-        <input type="number" id="age" name="age" value="<?= htmlspecialchars($student['age']) ?>" required>
+        <!-- <label for="age">Age</label>
+        <input type="number" id="age" name="age" value="<?= htmlspecialchars($student['age']) ?>" required> -->
 
-        <label for="gender">Gender</label>
+        <!-- <label for="gender">Gender</label>
         <select id="gender" name="gender">
           <option value="Male" <?= $student['gender'] == 'Male' ? 'selected' : '' ?>>Male</option>
           <option value="Female" <?= $student['gender'] == 'Female' ? 'selected' : '' ?>>Female</option>
           <option value="Other" <?= $student['gender'] == 'Other' ? 'selected' : '' ?>>Other</option>
-        </select>
+        </select> -->
     </div>
     <div class="card">
       <h3>Additional Information</h3>
-     
+<!--      
         <label for="yearlvl">Year Level</label>
         <select id="yearlvl" name="yearlvl">
           <option value="First Year" <?= $student['yearlvl'] == 'First Year' ? 'selected' : '' ?>>First Year</option>
@@ -305,7 +374,7 @@ if ($result) {
         <input type="text" id="contact" name="contact" value="<?= htmlspecialchars($student['contact']) ?>" required>
 
         <label for="address">Address</label>
-        <input type="text" id="address" name="address" value="<?= htmlspecialchars($student['address']) ?>" required>
+        <input type="text" id="address" name="address" value="<?= htmlspecialchars($student['address']) ?>" required> -->
 
        
     </div>
@@ -332,8 +401,26 @@ if ($result) {
 </div>
 
 
+
 <script src="./js/studentProfile.js" ></script>
 <script>
+ // Get modal elements
+const modal = document.getElementById("messageModal");
+const openBtn = document.getElementById("openModalBtn");
+const closeBtn = document.getElementById("closeModalBtn");
+
+// Open modal
+openBtn.addEventListener("click", () => {
+  modal.style.display = "block";
+});
+
+// Close modal
+closeBtn.addEventListener("click", () => {
+  modal.style.display = "none";
+});
+
+
+
   // Function to open the popup
   function openPopup() {
     const popup = document.getElementById('loginPopup');

@@ -415,3 +415,104 @@ p {
 .delete-btn:hover {
     background-color: #e60000;
 }
+
+#notificationSection {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f9;
+    padding: 30px;
+    margin: 20px auto;
+    border-radius: 8px;
+    max-width: 900px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.notificationTitle {
+    font-size: 2.5em;
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.notificationSubTitle {
+    font-size: 1.8em;
+    color: #444;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+}
+
+.notificationList {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.notificationItem {
+    font-size: 1.2em;
+    color: #333;
+    margin-bottom: 10px;
+    padding-left: 20px;
+    position: relative;
+}
+
+.notificationItem:before {
+    content: "\2022";
+    font-size: 2em;
+    color: #4caf50;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.noNotificationsMessage {
+    font-size: 1.1em;
+    color: #666;
+    margin-top: 10px;
+    text-align: center;
+}
+
+.userApprovalTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.userApprovalTable th, .userApprovalTable td {
+    padding: 15px;
+    text-align: left;
+    font-size: 1.1em;
+    border-bottom: 1px solid #ddd;
+}
+
+.userApprovalTable th {
+    background-color: #4caf50;
+    color: white;
+    text-transform: uppercase;
+}
+
+.userApprovalTable td {
+    background-color: #fff;
+}
+
+.checkboxInput {
+    width: 20px;
+    height: 20px;
+}
+
+.submitButton {
+    background-color: #4caf50;
+    color: white;
+    padding: 12px 20px;
+    font-size: 1.2em;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background-color 0.3s ease;
+}
+
+.submitButton:hover {
+    background-color: #45a049;
+}
+
+.userApprovalForm {
+    margin-top: 20px;
+}

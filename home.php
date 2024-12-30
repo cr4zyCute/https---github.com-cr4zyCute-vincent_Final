@@ -82,7 +82,7 @@ if ($result->num_rows > 0) {
             <span>BSIT</span>
         </div>
         <div class="icons">
-        <a href="home.html"><i class="bi bi-house-door-fill"></i></a>
+        <a href="home.php"><i class="bi bi-house-door-fill"></i></a>
         <a href="messages.html"><i class="bi bi-envelope-fill"></i></a>
         <a href="announcements.html"><i class="bi bi-megaphone-fill announcement-icon"></i></a>
           <div class="dropdown">

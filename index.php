@@ -3,11 +3,10 @@ session_start();
 include 'database/dbcon.php';
 
 $error_message = ""; 
-$show_popup = false; // By default, don't show the popup
+$show_popup = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
-    $show_popup = true; // Show popup after form submission
-
+    $show_popup = true; 
     if (!empty($_POST['email']) && !empty($_POST['password'])) {
         $email = mysqli_real_escape_string($conn, $_POST['email']);
         $password = mysqli_real_escape_string($conn, $_POST['password']);
@@ -92,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
                 </div>
                 <div class="title">Log in</div>
                     <p id="error-message" style="color:red"><?php echo $error_message; ?></p>
-                <!-- Add `name` attributes for input fields -->
+              
                 <input type="text" name="email" placeholder="Username" required>
                 <input type="password" name="password" placeholder="Password" required>
 
