@@ -8,7 +8,8 @@ body {
 header {
     background-color: #4267B2;
     color: white;
-    padding: 10px 20px;
+    
+    
 }
 
 nav {
@@ -38,6 +39,7 @@ nav {
     display: flex;
     align-items: center;
     gap: 15px;
+    
 }
 
 .nav-icons a {
@@ -48,6 +50,7 @@ nav {
 
 .nav-icons a:hover {
     color: #f0f2f5;
+    
 }
 
 /* Dropdown Styling */
@@ -69,11 +72,12 @@ nav {
     display: none;
     position: absolute;
     background-color: #333;
+    width: 70%;
     color: white;
     padding: 10px;
     border-radius: 5px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    min-width: 150px; /* Set a minimum width */
+    min-width: 250px; /* Set a minimum width */
     white-space: nowrap; /* Prevent text wrapping */
     z-index: 1;
 }
@@ -115,7 +119,7 @@ nav {
 .nav-icons a {
     display: flex;
     align-items: center;
-    margin: 0 10px;
+    margin: 0 ;
 }
 
 /* Responsive Design */
@@ -229,89 +233,73 @@ nav {
             border-radius: 50%;
             cursor: pointer;
         }
-         .dropdown {
-        position: relative;
-        display: inline-block;
-    }
-
-    .dropdown-toggle {
-        text-decoration: none;
-        color: white;
-    }
-
-  /* .open-btn::after {
-    content: '3';
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    background: red;
-    color: white;
-    font-size: 12px;
-    font-weight: bold;
-    padding: 2px 6px;
-    border-radius: 50%;
-    border: 1px solid white;
-} */
-
-/* Dropdown content */
-.dropdown-content {
-    display: none;
-    position: absolute;
-    right: 0;
-    background-color: #f1f1f1;
-    min-width: 300px;
-    max-width: 300px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    z-index: 1;
-    overflow: hidden;
-}
-
-/* Show on hover or click */
-.dropdown:hover .dropdown-content {
-    display: block;
-}
-
-/* Dropdown messages list */
-.dropdown-content ul {
-    list-style-type: none;
-    padding: 10px;
-    margin: 0;
-}
-
-.dropdown-content li {
-    border-bottom: 1px solid #ddd;
-    padding: 10px 5px;
-    color: #333;
-}
-
-/* Form name style */
-.dropdown-content li span {
-    display: block;
-    font-weight: bold;
-    color: #007bff;
-}
-
-/* Links styling */
-.dropdown-content a {
-    color: #555;
-    text-decoration: none;
-    font-size: 14px;
-    margin-top: 5px;
+        /* Dropdown container */
+.dropdown-profile {
+    position: relative;
     display: inline-block;
 }
 
-.dropdown-content a:hover {
-    color: #007bff;
-    text-decoration: underline;
+/* Profile picture styling */
+.profile-pic {
+    width: 45px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    cursor: pointer;
+    transition: transform 0.3s ease;
 }
 
-/* End of list */
-.dropdown-content li:last-child {
-    border: none;
-    text-align: center;
-    font-style: italic;
-    color: #999;
+.profile-pic:hover {
+    transform: scale(1.1);
+}
+
+/* Dropdown content */
+.dropdown-content-profile {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 60px; /* Position below the profile picture */
+    background-color: #f1f1f1;
+    min-width: 200px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    overflow: hidden;
+    padding: 10px 0;
+}
+
+/* Show dropdown on hover */
+.dropdown-profile:hover .dropdown-content-profile {
+    display: block;
+}
+
+/* Dropdown links */
+.dropdown-content-profile a {
+    display: block;
+    padding: 10px 20px;
+    color: #555;
+    text-decoration: none;
+    font-size: 14px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.dropdown-content-profile a:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+/* Adjust for mobile responsiveness */
+@media (max-width: 768px) {
+    .dropdown-content-profile {
+        min-width: 150px;
+        max-width: 250px;
+        top: 50px;
+    }
+
+    .profile-pic {
+        width: 40px;
+        height: 40px;
+    }
 }
 
         .profile {
@@ -405,6 +393,7 @@ nav {
 
             header .icons .announcement-icon {
                 display: inline;
+                margin: 0;
             }
 
             .container {
@@ -959,3 +948,147 @@ nav {
     .open-btn:hover {
       background-color: #0056b3;
     }
+
+    
+    /* Dropdown container styling */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.open-btn {
+    background-color: #007bff;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.open-btn i {
+    font-size: 20px;
+    vertical-align: middle;
+}
+
+/* Dropdown container styling */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.open-btn {
+    background-color: #007bff;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.open-btn i {
+    font-size: 20px;
+    vertical-align: middle;
+}
+
+/* Dropdown content */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #fff;
+    min-width: 320px;
+    max-height: 400px; /* Maximum height for the dropdown */
+    overflow-y: auto; /* Enable vertical scrolling */
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    z-index: 1;
+    border-radius: 10px;
+    right: 0; /* Align dropdown to the right */
+}
+
+/* Show the dropdown on hover */
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* List styles */
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+ul li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    transition: background-color 0.3s ease;
+}
+
+ul li:hover {
+    background-color: #f0f0f0;
+}
+
+/* Message details */
+.message-details {
+    flex: 1;
+}
+
+.message-title {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+    white-space: nowrap; /* Prevent text overflow */
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Message buttons */
+.message-btn {
+    display: flex;
+    gap: 8px;
+}
+
+.message-btn a {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 36px;
+    height: 36px;
+    background-color: #007bff;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 50%;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.message-btn a:hover {
+    background-color: #0056b3;
+}
+
+.message-btn a i {
+    font-size: 18px;
+    vertical-align: middle;
+}
+
+/* Scrollbar styling for the dropdown */
+.dropdown-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.dropdown-content::-webkit-scrollbar-thumb {
+    background: #007bff;
+    border-radius: 4px;
+}
+
+.dropdown-content::-webkit-scrollbar-thumb:hover {
+    background: #0056b3;
+}

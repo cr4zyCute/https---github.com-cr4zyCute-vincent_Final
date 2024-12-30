@@ -28,12 +28,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $firstname = mysqli_real_escape_string($conn, $_POST['firstname'] ?? $student['firstname']);
     $middlename = mysqli_real_escape_string($conn, $_POST['middlename'] ?? $student['middlename']);
     $lastname = mysqli_real_escape_string($conn, $_POST['lastname'] ?? $student['lastname']);
-    // $age = mysqli_real_escape_string($conn, $_POST['age'] ?? $student['age']);
-    // $gender = mysqli_real_escape_string($conn, $_POST['gender'] ?? $student['gender']);
-    // $contact = mysqli_real_escape_string($conn, $_POST['contact'] ?? $student['contact']); 
-    // $yearlvl = mysqli_real_escape_string($conn, $_POST['yearlvl'] ?? $student['yearlvl']); 
-    // $section = mysqli_real_escape_string($conn, $_POST['section'] ?? $student['section']); 
-    // $address = mysqli_real_escape_string($conn, $_POST['address'] ?? $student['address']);
     $email = mysqli_real_escape_string($conn, $_POST['email'] ?? $student['email']);
     $password = $_POST['password'] ?? $student['password'];
 
@@ -53,7 +47,6 @@ if (!empty($_FILES['profileImage']['name'])) {
         exit();
     }
 }
-    // Construct the update query
     $updateQuery = "
         UPDATE student 
         JOIN credentials ON student.id = credentials.student_id
@@ -67,8 +60,6 @@ if (!empty($_FILES['profileImage']['name'])) {
                $imageQueryPart
         WHERE student.id = '$student_id'
     ";
-
-    // Execute and check the query
     if (mysqli_query($conn, $updateQuery)) {
         header("Location: studentProfile.php");
         exit();
@@ -83,18 +74,15 @@ $student_query->bind_result($approved);
 $student_query->fetch();
 $student_query->close();
 
-// Fetch unread notifications for the student
 $notifications_query = $conn->prepare("SELECT message FROM notifications WHERE student_id = ? AND is_read = 0");
 $notifications_query->bind_param('i', $student_id);
 $notifications_query->execute();
 $notifications_result = $notifications_query->get_result();
 
-// Mark notifications as read
 $mark_read_query = $conn->prepare("UPDATE notifications SET is_read = 1 WHERE student_id = ? AND is_read = 0");
 $mark_read_query->bind_param('i', $student_id);
 $mark_read_query->execute();
 
-// Fetch assigned forms for the student
 $forms_query = $conn->prepare("SELECT f.id AS form_id, f.form_name FROM student_forms sf
                                JOIN forms f ON sf.form_id = f.id
                                WHERE sf.student_id = ?");
@@ -102,13 +90,9 @@ $forms_query = $conn->prepare("SELECT f.id AS form_id, f.form_name FROM student_
 $forms_query->bind_param('i', $student_id);
 $forms_query->execute();
 $forms_result = $forms_query->get_result();
-
 $forms_query->close();
 
 ?>
-
-
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -135,27 +119,34 @@ $forms_query->close();
                 <ul>
                     <?php while ($form = $forms_result->fetch_assoc()): ?>
                         <li>
-                            <?= htmlspecialchars($form['form_name']); ?>
-                            <a href="fill_form.php?form_id=<?= $form['form_id']; ?>">Fill Form</a>
-                            <a href="view_responses.php?form_id=<?= $form['form_id']; ?>">View Responses</a>
+                            
+                            <div class="message-title">
+                                <?= htmlspecialchars($form['form_name']); ?>
+                            </div>
+                            <div class="message-btn">
+                               
+                                <a href="fill_form.php?form_id=<?= $form['form_id']; ?>"><i class="bi bi-clipboard2-check-fill"></i></a>
+                                <a href="view_responses.php?form_id=<?= $form['form_id']; ?>"><i class="bi bi-envelope-open-fill"></i></a>
+                            </div>
                         </li>
                     <?php endwhile; ?>
                 </ul>
             <?php else: ?>
-                <p>No forms assigned yet.</p>
+                <p>No Message yet.</p>
             <?php endif; ?>
         </div>
     </div>
             
-            <div class="dropdown">
+            <div class="dropdown-profile">
             <a href="studentProfile.php">
                  <img src="images-data/<?= htmlspecialchars($student['image']) ?>" alt="Profile Image" class="profile-pic" >
-                <div class="dropdown-content">
+                <div class="dropdown-content-profile">
                     <a href="#profile">Profile Settings</a>
                     <a href="./includes/logout.php">Log out</a>
                 </div>
             </div>
             </a>
+
         </div>
     </nav>
 </header>
@@ -184,11 +175,100 @@ $forms_query->close();
        <p><strong>Gender:</strong> <?= htmlspecialchars($student['gender']) ?></p> -->
     </div>
     <div class="card">
+        <?php
+
+
+if (!empty($_SESSION['student_id'])) {
+    $student_id = $_SESSION['student_id'];
+
+    // Query to fetch student details
+    $query = "
+        SELECT student.*, credentials.email
+        FROM student
+        JOIN credentials ON student.id = credentials.student_id
+        WHERE student.id = ?
+    ";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param('i', $student_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result && $result->num_rows > 0) {
+        $student = $result->fetch_assoc();
+    } else {
+        echo "Student profile not found.";
+        exit();
+    }
+
+    // Query to fetch forms assigned to the student
+    $forms_query = $conn->prepare("
+        SELECT f.id AS form_id, f.form_name 
+        FROM student_forms sf
+        JOIN forms f ON sf.form_id = f.id
+        WHERE sf.student_id = ?
+    ");
+    $forms_query->bind_param('i', $student_id);
+    $forms_query->execute();
+    $forms_result = $forms_query->get_result();
+
+    if ($forms_result->num_rows > 0) {
+       // echo "<h1>Forms for " . htmlspecialchars($student['firstname']) . " " . htmlspecialchars($student['lastname']) . "</h1>";
+        while ($form = $forms_result->fetch_assoc()) {
+            $form_id = $form['form_id'];
+            // echo "<h2>Form Name: " . htmlspecialchars($form['form_name']) . "</h2>";
+
+            // // Fetch fields
+            // $fields_query = $conn->prepare("SELECT * FROM form_fields WHERE form_id = ?");
+            // $fields_query->bind_param('i', $form_id);
+            // $fields_query->execute();
+            // $fields_result = $fields_query->get_result();
+
+            // if ($fields_result->num_rows > 0) {
+            //     echo "<h3>Fields:</h3><ul>";
+            //     while ($field = $fields_result->fetch_assoc()) {
+            //         echo "<li>" . htmlspecialchars($field['field_name']) . " (Type: " . htmlspecialchars($field['field_type']) . ", Required: " . ($field['is_required'] ? "Yes" : "No") . ")</li>";
+            //     }
+            //     echo "</ul>";
+            // } else {
+            //     echo "<p>No fields found for this form.</p>";
+            // }
+
+            // Fetch responses
+            $responses_query = $conn->prepare("
+                SELECT fr.response, ff.field_name 
+                FROM form_responses fr
+                JOIN form_fields ff ON fr.field_id = ff.id
+                WHERE fr.form_id = ? AND fr.student_id = ?
+            ");
+            $responses_query->bind_param('ii', $form_id, $student_id);
+            $responses_query->execute();
+            $responses_result = $responses_query->get_result();
+
+            if ($responses_result->num_rows > 0) {
+                
+              echo "<a href='view_responses.php?form_id=" . $form['form_id'] . "'><i class='bi bi-pencil-square'></i></a>";
+
+                
+                while ($response = $responses_result->fetch_assoc()) {
+                    echo "<li style = 'list-style-type: none;'> " . htmlspecialchars($response['field_name']) . ":  " . htmlspecialchars($response['response']) . "</li>";
+                }
+                echo "</ul>";
+            } else {
+                echo "<p>No responses found for this form.</p>";
+            }
+        }
+    } else {
+        echo "<p>No forms found for this student.</p>";
+    }
+
+} else {
+    header("Location: student.php");
+    exit();
+}
+?>
+
         <h3></h3>
-      <!-- <p><strong>Year:</strong> <?= htmlspecialchars($student['yearlvl']) ?></p>
-      <p><strong>Section:</strong> <?= htmlspecialchars($student['section']) ?></p>
-      <p><strong>Contact:</strong> <?= htmlspecialchars($student['contact']) ?></p>
-      <p><strong>Address:</strong> <?= htmlspecialchars($student['address']) ?></p> -->
+    
     </div>
     <div class="card">
         <h3>Credentials</h3>
@@ -304,7 +384,7 @@ if ($result) {
                     <?php endwhile; ?>
                 </ul>
             <?php else: ?>
-                <p>No forms assigned yet.</p>
+                <p>No Message Yet.</p>
             <?php endif; ?>
         </div>
     </div>
@@ -387,7 +467,7 @@ if ($result) {
   
       <p>
     <label for="password">Password</label>
-    <input type="password" id="password" name="password" value="<?= htmlspecialchars($student['password']) ?>" required>
+<input type="password" id="password" name="password" value="<?php echo htmlspecialchars($student['password']); ?>" required>
     <button id="togglePassword" style="background: none; border: none; cursor: pointer; margin-left: 10px;">
         <i id="eyeIcon" class="bi bi-eye-fill"></i>
     </button>
