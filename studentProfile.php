@@ -102,7 +102,6 @@ $forms_query->close();
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <title>User Profile</title>
     <link rel="stylesheet" href="css/studentProfile.css">
-    
 </head>
 <body>
 <main>
@@ -154,14 +153,18 @@ $forms_query->close();
 <div class="profile-container">
     <img src="images-data/<?= htmlspecialchars($student['image']) ?>" alt="Profile Image" class="profile-image">
     <div class="profile-info">
-        <h1><?= htmlspecialchars($student['firstname'] . ' ' . $student['lastname']) ?> </h1>  <button onclick="openPopup()">Open Profile</button>
+        <h1><?= htmlspecialchars($student['firstname'] . ' ' . $student['lastname']) ?></h1>
+        <button onclick="openPopup()">Open Profile</button>
         <p><strong>ID:</strong> <?= htmlspecialchars($student['id']) ?></p>
-        <h2><i class="bi bi-mortarboard-fill"></i>Student</h2> <br>
-        <?php if ($approved): ?>
-        <p>Your account has been approved.</p>
-    <?php else: ?>
-        <p>Your account is awaiting approval.</p>
-    <?php endif; ?>
+        <h2><i class="bi bi-mortarboard-fill"></i> Student</h2><br>
+        <?php if ($student['approved']): ?>
+    <p>Your account has been approved.</p>
+<?php elseif ($student['rejected']): ?>
+    <p>Your account has been rejected by the admin.</p>
+<?php else: ?>
+    <p>Your account is awaiting approval.</p>
+<?php endif; ?>
+
     </div>
 </div>
 

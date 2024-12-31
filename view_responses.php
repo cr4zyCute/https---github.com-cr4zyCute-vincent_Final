@@ -50,47 +50,152 @@ $delete_responses_query->execute();
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Responses</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 50px auto;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #555;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        table th, table td {
+            padding: 12px;
+            text-align: left;
+        }
+
+        table th {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        table tr:nth-child(odd) {
+            background-color: #f2f2f2;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #fff;
+        }
+
+        input[type="text"] {
+            width: 90%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .delete-button {
+            background-color: #dc3545;
+        }
+
+        .delete-button:hover {
+            background-color: #c82333;
+        }
+
+        a {
+            display: block;
+            margin: 20px auto;
+            text-align: center;
+            text-decoration: none;
+            color: #007bff;
+            font-size: 1rem;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .no-responses {
+            text-align: center;
+            font-size: 1rem;
+            color: #666;
+        }
+    </style>
 </head>
 <body>
-    <h1>Edit Responses for <?= htmlspecialchars($form['form_name']); ?></h1>
-    <?php if ($responses->num_rows > 0): ?>
-        <form action="update_responses.php" method="POST">
-            <input type="hidden" name="form_id" value="<?= $form_id; ?>">
-            <table border="1">
-                <thead>
-                    <tr>
-                        <th>Field</th>
-                        <th>Response</th>
-                    </tr>
-                </thead>
-            <tbody>
-    <?php while ($response = $responses->fetch_assoc()): ?>
-        <tr>
-            <td><?= htmlspecialchars($response['field_name']); ?></td>
-            <td>
-                <input 
-                    type="text" 
-                    name="responses[<?= $response['response_id']; ?>]" 
-                    value="<?= htmlspecialchars($response['response']); ?>">
-            </td>
-            <td>
-                <form action="delete_field.php" method="POST" style="display:inline;">
-                    <input type="hidden" name="field_id" value="<?= $response['response_id']; ?>">
-                    <input type="hidden" name="form_id" value="<?= $form_id; ?>">
-                    <button type="submit" onclick="return confirm('Are you sure you want to delete this field?');">Delete</button>
-                </form>
-            </td>
-        </tr>
-    <?php endwhile; ?>
-</tbody>
-
-            </table>
-            <button type="submit">Save Changes</button>
-        </form>
-    <?php else: ?>
-        <p>No responses submitted yet.</p>
-    <?php endif; ?>
-    <a href="user_profile.php">Back to Dashboard</a>
+    <div class="container">
+        <h1>Edit Responses for <?= htmlspecialchars($form['form_name']); ?></h1>
+        <?php if ($responses->num_rows > 0): ?>
+            <form action="update_responses.php" method="POST">
+                <input type="hidden" name="form_id" value="<?= $form_id; ?>">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Response</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <?php while ($response = $responses->fetch_assoc()): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($response['field_name']); ?></td>
+                            <td>
+                                <input 
+                                    type="text" 
+                                    name="responses[<?= $response['response_id']; ?>]" 
+                                    value="<?= htmlspecialchars($response['response']); ?>">
+                            </td>
+                            <td>
+                                <form action="delete_field.php" method="POST" style="display:inline;">
+                                    <input type="hidden" name="field_id" value="<?= $response['response_id']; ?>">
+                                    <input type="hidden" name="form_id" value="<?= $form_id; ?>">
+                                    <button 
+                                        type="submit" 
+                                        class="delete-button" 
+                                        onclick="return confirm('Are you sure you want to delete this field?');">
+                                        Delete
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    <?php endwhile; ?>
+                    </tbody>
+                </table>
+                <button type="submit">Save Changes</button>
+            </form>
+        <?php else: ?>
+            <p class="no-responses">No responses submitted yet.</p>
+        <?php endif; ?>
+        <a href="user_profile.php">Back to Dashboard</a>
+    </div>
 </body>
 </html>

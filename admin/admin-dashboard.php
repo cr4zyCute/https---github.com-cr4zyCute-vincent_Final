@@ -2,20 +2,20 @@
 include '../database/dbcon.php';
 session_start();
 
-if (!isset($_SESSION['admin_id'])) {
-    header("Location: admin-login.php");
-    exit();
-}
-$admin_id = $_SESSION['admin_id'];
+// if (!isset($_SESSION['admin_id'])) {
+//     header("Location: admin-login.php");
+//     exit();
+// }
+// $admin_id = $_SESSION['admin_id'];
 
-$query = "SELECT * FROM admin WHERE id = '$admin_id'";
-$result = mysqli_query($conn, $query);
-if ($result && mysqli_num_rows($result) > 0) {
-    $admin = mysqli_fetch_assoc($result);
-} else {
-    echo "Admin profile not found.";
-    exit();
-}
+// $query = "SELECT * FROM admin WHERE id = '$admin_id'";
+// $result = mysqli_query($conn, $query);
+// if ($result && mysqli_num_rows($result) > 0) {
+//     $admin = mysqli_fetch_assoc($result);
+// } else {
+//     echo "Admin profile not found.";
+//     exit();
+// }
 
 // // Query to fetch student details for the 'Manage Student' section
 // $student_query = "SELECT id, firstname, lastname, image FROM student";
@@ -31,7 +31,40 @@ if ($result && mysqli_num_rows($result) > 0) {
 // }
 
 // Fetch all users
-$users = $conn->query("SELECT * FROM student");
+// $users = $conn->query("SELECT * FROM student");
+
+
+// Check if admin is logged in
+if (!isset($_SESSION['admin_id'])) {
+    header("Location: admin-login.php");
+    exit();
+}
+
+$admin_id = $_SESSION['admin_id'];
+
+// Fetch admin details
+$query = "SELECT * FROM admin WHERE id = ?";
+$stmt = $conn->prepare($query);
+$stmt->bind_param("i", $admin_id);
+$stmt->execute();
+$result = $stmt->get_result();
+if ($result && $result->num_rows > 0) {
+    $admin = $result->fetch_assoc();
+} else {
+    echo "Admin profile not found.";
+    exit();
+}
+
+// Fetch forms and students
+$forms = $conn->query("SELECT * FROM forms")->fetch_all(MYSQLI_ASSOC);
+$students = $conn->query("SELECT * FROM student")->fetch_all(MYSQLI_ASSOC);
+$approved_students = $conn->query("SELECT * FROM student WHERE approved = 1")->fetch_all(MYSQLI_ASSOC);
+$new_students = $conn->query("SELECT * FROM student WHERE is_approved = 0 AND admin_notified = 0")->fetch_all(MYSQLI_ASSOC);
+
+// Update notification status for new students
+$conn->query("UPDATE student SET admin_notified = 1 WHERE is_approved = 0 AND admin_notified = 0");
+
+
 
 ?>
 <!DOCTYPE html>
@@ -53,7 +86,7 @@ $users = $conn->query("SELECT * FROM student");
             <li><a href="#" onclick="showSection('home')" aria-controls="home">Home</a></li>
             <li><a href="#" onclick="showSection('student')" aria-controls="student">Manage Student</a></li>
             <li><a href="#" onclick="showSection('settings')" aria-controls="settings">Settings</a></li>
-            <li><a href="#" onclick="showSection('form')" aria-controls="form">Form</a></li>
+            <li><a href="adminForm.php" onclick="showSection('form')" aria-controls="form">Form</a></li>
             <li><a href="#" onclick="showSection('announcements')" aria-controls="announcements">announcements</a></li>
         </ul>
         <div class="footer">
@@ -459,19 +492,40 @@ if ($studentResult && mysqli_num_rows($studentResult) > 0) {
 <section id="notifications">
             <h1>notification</h1>
             <?php
-
-$conn = new mysqli('localhost', 'root', '', 'form_db');
-
-// Fetch unread notifications for admin actions
 $notifications = $conn->query("SELECT * FROM notifications WHERE is_read = 0");
 
-// Fetch unapproved users
-$unapproved_users = $conn->query("SELECT * FROM users WHERE approved = 0");
+if (!$notifications) {
+    die("Error fetching notifications: " . $conn->error);
+}
 
+// Fetch unapproved students along with their emails
+$unapproved_users = $conn->query("
+    SELECT 
+        student.id AS student_id, 
+        student.firstname, 
+        credentials.email 
+    FROM 
+        student 
+    INNER JOIN 
+        credentials 
+    ON 
+        student.id =credentials.student_id 
+    WHERE 
+        student.approved = 0
+");
 
-$conn->query("UPDATE notifications SET is_read = 1 WHERE is_read = 0");
+if (!$unapproved_users) {
+    die("Error fetching unapproved users: " . $conn->error);
+}
+
+// Mark notifications as read
+$mark_read = $conn->query("UPDATE notifications SET is_read = 1 WHERE is_read = 0");
+
+if (!$mark_read) {
+    die("Error updating notifications: " . $conn->error);
+}
 ?>
-<h1>Admin Notifications</h1>
+ <h1>Admin Notifications</h1>
 
     <h2>New Notifications</h2>
     <?php if ($notifications->num_rows > 0): ?>
@@ -484,10 +538,10 @@ $conn->query("UPDATE notifications SET is_read = 1 WHERE is_read = 0");
         <p>No new notifications.</p>
     <?php endif; ?>
 
-    <h2>Unapproved Users</h2>
+    <h2>Unapproved Students</h2>
     <?php if ($unapproved_users->num_rows > 0): ?>
-        <form method="POST" action="approve_users.php">
-            <table border="1">
+        <form method="POST" action="../approve_users.php">
+            <table>
                 <thead>
                     <tr>
                         <th>Username</th>
@@ -496,12 +550,12 @@ $conn->query("UPDATE notifications SET is_read = 1 WHERE is_read = 0");
                     </tr>
                 </thead>
                 <tbody>
-                    <?php while ($user = $unapproved_users->fetch_assoc()): ?>
+                    <?php while ($student = $unapproved_users->fetch_assoc()): ?>
                         <tr>
-                            <td><?= htmlspecialchars($user['username']); ?></td>
-                            <td><?= htmlspecialchars($user['email']); ?></td>
+                            <td><?= htmlspecialchars($student['firstname']); ?></td>
+                            <td><?= htmlspecialchars($student['email']); ?></td>
                             <td>
-                                <input type="checkbox" name="approve_users[]" value="<?= $user['id']; ?>">
+                                <input type="checkbox" name="approve_users[]" value="<?= $student['student_id']; ?>">
                             </td>
                         </tr>
                     <?php endwhile; ?>
@@ -510,94 +564,86 @@ $conn->query("UPDATE notifications SET is_read = 1 WHERE is_read = 0");
             <button type="submit">Approve Selected</button>
         </form>
     <?php else: ?>
-        <p>No users awaiting approval.</p>
+        <p>No students awaiting approval.</p>
     <?php endif; ?>
-
 </section>
 
 <section id="form">
-    <?php
-
-if (!isset($_GET['form_id']) || empty($_GET['form_id'])) {
-    echo "No form selected.";
-  
-}
-
-$form_id = intval($_GET['form_id']);
-$user_id = $_SESSION['id']; // Use the authenticated user ID
-
-// Fetch the form details
-$form_query = $conn->prepare("SELECT * FROM forms WHERE id = ?");
-$form_query->bind_param('i', $form_id);
-$form_query->execute();
-$form_result = $form_query->get_result();
-
-if ($form_result->num_rows === 0) {
-    echo "Form not found.";
-   
-}
-
-$form = $form_result->fetch_assoc();
-
-// Fetch the form fields
-$fields_query = $conn->prepare("SELECT * FROM form_fields WHERE form_id = ?");
-$fields_query->bind_param('i', $form_id);
-$fields_query->execute();
-$fields_result = $fields_query->get_result();
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Handle form submission
-    $responses = [];
-    while ($field = $fields_result->fetch_assoc()) {
-        $field_name = 'field_' . $field['id'];
-        $responses[$field['id']] = $_POST[$field_name] ?? null;
-    }
-
-    // Insert responses into the database
-    foreach ($responses as $field_id => $response) {
-        $response_query = $conn->prepare("INSERT INTO form_responses (user_id, form_id, field_id, response) VALUES (?, ?, ?, ?)");
-        $response_query->bind_param('iiis', $user_id, $form_id, $field_id, $response);
-        $response_query->execute();
-    }
-    echo "Form submitted successfully!";
-}
-?>
-            <h1>Form</h1>
-              <h1>Create a New Form</h1>
-    <form method="POST">
+    <h2>Create a New Form</h2>
+    <form id="createForm" method="POST" action="create_form.php">
         <label for="form_name">Form Name:</label>
         <input type="text" name="form_name" id="form_name" required><br><br>
         <button type="button" onclick="addField()">Add Field</button>
         <button type="submit">Create Form</button>
-
-        <div id="fields">
-            <?php
-            $fieldCount = 0;
-            // Display existing fields
-            foreach ($existing_fields as $field) {
-                ?>
-<?php
-?>
-                <div class="field">
-                    <label>Field Name:</label>
-                    <input type="text" name="fields[<?php echo $fieldCount; ?>][name]" value="<?php echo htmlspecialchars($field['name']); ?>" required>
-                    <label>Field Type:</label>
-                    <select name="fields[<?php echo $fieldCount; ?>][type]">
-                        <option value="text" <?php echo ($field['type'] === 'text') ? 'selected' : ''; ?>>Text</option>
-                        <option value="number" <?php echo ($field['type'] === 'number') ? 'selected' : ''; ?>>Number</option>
-                        <option value="email" <?php echo ($field['type'] === 'email') ? 'selected' : ''; ?>>Email</option>
-                        <option value="textarea" <?php echo ($field['type'] === 'textarea') ? 'selected' : ''; ?>>Textarea</option>
-                    </select>
-                    <label>Required:</label>
-                    <input type="checkbox" name="fields[<?php echo $fieldCount; ?>][required]" <?php echo ($field['required']) ? 'checked' : ''; ?>>
-                </div>
-                <?php
-                $fieldCount++;
-            }
-            ?>
-        </div>
+        <div id="fields"></div>
     </form>
 
+    <!-- List of Forms -->
+    <section>
+        <h2>Available Forms</h2>
+        <ul>
+            <?php foreach ($forms as $form): ?>
+                <li>
+                    <?= htmlspecialchars($form['form_name']); ?>
+                    <button onclick="showSendModal(<?= $form['id']; ?>)">Send to student</button>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+    </section>
+
+    <!-- Modal for sending forms -->
+    <div id="sendModal" style="display:none;">
+        <h3>Send Form to Student</h3>
+        <form method="POST" action="send_form.php">
+            <input type="hidden" name="form_id" id="modalFormId">
+            <label for="student_id">Select Student:</label>
+            <select name="student_id" id="student_id" required>
+                <?php if (!empty($approved_students)): ?>
+    <?php foreach ($approved_students as $student): ?>
+        <option value="<?= htmlspecialchars($student['id']); ?>">
+            <?= htmlspecialchars($student['firstname']); ?>
+        </option>
+    <?php endforeach; ?>
+<?php else: ?>
+    <option disabled>No approved students available</option>
+<?php endif; ?>
+
+            </select><br><br>
+            <button type="submit">Send Form</button>
+        </form>
+        <button onclick="document.getElementById('sendModal').style.display = 'none';">Close</button>
+    </div>
+</section>
+
+<script>
+     fieldCount = 0;
+
+    function showSendModal(formId) {
+        document.getElementById('modalFormId').value = formId;
+        document.getElementById('sendModal').style.display = 'block';
+    }
+
+    function addField() {
+        const fieldsDiv = document.getElementById('fields');
+        const fieldHTML = `
+            <div class="field">
+                <label>Field Name:</label>
+                <input type="text" name="fields[${fieldCount}][name]" required>
+                <label>Field Type:</label>
+                <select name="fields[${fieldCount}][type]">
+                    <option value="text">Text</option>
+                    <option value="number">Number</option>
+                    <option value="email">Email</option>
+                    <option value="textarea">Textarea</option>
+                </select>
+                <label>Required:</label>
+                <input type="checkbox" name="fields[${fieldCount}][required]">
+            </div>
+        `;
+        fieldsDiv.insertAdjacentHTML('beforeend', fieldHTML);
+        fieldCount++;
+    }
+</script>
 
 </section>
 
@@ -617,7 +663,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </script>
 </body>
 </html>
-
 
 </section>
 

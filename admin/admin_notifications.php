@@ -1,6 +1,6 @@
 <?php
 session_start();
-include 'database/dbcon.php';
+include '../database/dbcon.php';
 $notifications = $conn->query("SELECT * FROM notifications WHERE is_read = 0");
 
 if (!$notifications) {
@@ -57,34 +57,40 @@ if (!$mark_read) {
 
     <h2>Unapproved Students</h2>
     <?php if ($unapproved_users->num_rows > 0): ?>
-        <form method="POST" action="approve_users.php">
-            <table border="1">
-                <thead>
-                    <tr>
-                        <th>Username</th>
-                        <th>Email</th>
-                        <th>Approve</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php while ($student = $unapproved_users->fetch_assoc()): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($student['firstname']); ?></td>
-                            <td><?= htmlspecialchars($student['email']); ?></td>
-                            <td>
-                                <input type="checkbox" name="approve_users[]" value="<?= $student['student_id']; ?>">
-                            </td>
-                        </tr>
-                    <?php endwhile; ?>
-                </tbody>
-            </table>
-            <button type="submit">Approve Selected</button>
-        </form>
+       <form method="POST" action="approve_users.php">
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Approve</th>
+                <th>Reject</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php while ($student = $unapproved_users->fetch_assoc()): ?>
+                <tr>
+                    <td><?= htmlspecialchars($student['firstname']); ?></td>
+                    <td><?= htmlspecialchars($student['email']); ?></td>
+                    <td>
+                        <input type="checkbox" name="approve_users[]" value="<?= $student['student_id']; ?>">
+                    </td>
+                    <td>
+                        <input type="checkbox" name="reject_users[]" value="<?= $student['student_id']; ?>">
+                    </td>
+                </tr>
+            <?php endwhile; ?>
+        </tbody>
+    </table>
+    <button type="submit" name="action" value="approve">Approve Selected</button>
+    <button type="submit" name="action" value="reject">Reject Selected</button>
+</form>
+
     <?php else: ?>
         <p>No students awaiting approval.</p>
     <?php endif; ?>
 
-    <a href="dashboard.php">Back to Dashboard</a>
+    
 </body>
 </html>
-        
+         
