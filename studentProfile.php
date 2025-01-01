@@ -174,8 +174,7 @@ $forms_query->close();
         <p><strong>First Name:</strong> <?= htmlspecialchars($student['firstname']) ?></p>
         <p><strong>Middle Name:</strong> <?= htmlspecialchars($student['middlename']) ?></p>
         <p><strong>Last Name:</strong> <?= htmlspecialchars($student['lastname']) ?></p>
-       <!-- <p><strong>Age:</strong> <?= htmlspecialchars($student['age']) ?></p>
-       <p><strong>Gender:</strong> <?= htmlspecialchars($student['gender']) ?></p> -->
+
     </div>
     <div class="card">
         <?php
@@ -257,7 +256,7 @@ if (!empty($_SESSION['student_id'])) {
                 }
                 echo "</ul>";
             } else {
-                echo "<p>No responses found for this form.</p>";
+               
             }
         }
     } else {

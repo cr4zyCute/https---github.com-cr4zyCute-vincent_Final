@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Redirect after successful form creation
-    header('Location: list_forms.php');
+    header('Location: adminForm.php');
 }
 
 // If you want to retain the values after submitting, you can prepopulate the fields here

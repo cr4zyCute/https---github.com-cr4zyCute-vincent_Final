@@ -1,50 +1,42 @@
 <?php
-require '../database/dbcon.php';
-session_start(); 
 
-if (!empty($_SESSION['student_id'])) {
-    $student_id = $_SESSION['student_id'];
+include '../database/dbcon.php';
 
-    $query = "
-        SELECT student.*, credentials.email, credentials.password
-        FROM student 
-        JOIN credentials ON student.id = credentials.student_id 
-        WHERE student.id = '$student_id'
-    ";
-    $result = mysqli_query($conn, $query);
+if (isset($_GET['id'])) {
+    $id = intval($_GET['id']);
 
-    if ($result && mysqli_num_rows($result) > 0) {
-        $student = mysqli_fetch_assoc($result);
+    $query = "SELECT * FROM student WHERE id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        $student = $result->fetch_assoc();
     } else {
-        echo "Student profile not found."; 
-        exit();
+        echo "Student not found.";
+        exit;
     }
 } else {
-    header("Location: student.php");
-    exit();
+    echo "No student ID provided.";
+    exit;
 }
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Sanitize inputs and provide fallbacks for missing fields
     $firstname = mysqli_real_escape_string($conn, $_POST['firstname'] ?? $student['firstname']);
     $middlename = mysqli_real_escape_string($conn, $_POST['middlename'] ?? $student['middlename']);
     $lastname = mysqli_real_escape_string($conn, $_POST['lastname'] ?? $student['lastname']);
-    $age = mysqli_real_escape_string($conn, $_POST['age'] ?? $student['age']);
-    $gender = mysqli_real_escape_string($conn, $_POST['gender'] ?? $student['gender']);
-    $contact = mysqli_real_escape_string($conn, $_POST['contact'] ?? $student['contact']); 
-    $yearlvl = mysqli_real_escape_string($conn, $_POST['yearlvl'] ?? $student['yearlvl']); 
-    $section = mysqli_real_escape_string($conn, $_POST['section'] ?? $student['section']); 
-    $address = mysqli_real_escape_string($conn, $_POST['address'] ?? $student['address']);
     $email = mysqli_real_escape_string($conn, $_POST['email'] ?? $student['email']);
     $password = $_POST['password'] ?? $student['password'];
 
   $imageQueryPart = ""; 
         $imageName = basename($_FILES['profileImage']['name']);
-        $imagePath = '../images-data/' . $imageName;
+        $imagePath = 'images-data/' . $imageName;
 
 $imageQueryPart = ""; 
 if (!empty($_FILES['profileImage']['name'])) {
     $imageName = basename($_FILES['profileImage']['name']);
-    $imagePath = '../images-data/' . $imageName;
+    $imagePath = 'images-data/' . $imageName;
 
     if (move_uploaded_file($_FILES['profileImage']['tmp_name'], $imagePath)) {
         $imageQueryPart = ", student.image = '$imageName'";
@@ -53,7 +45,6 @@ if (!empty($_FILES['profileImage']['name'])) {
         exit();
     }
 }
-    // Construct the update query
     $updateQuery = "
         UPDATE student 
         JOIN credentials ON student.id = credentials.student_id
@@ -61,31 +52,44 @@ if (!empty($_FILES['profileImage']['name'])) {
             student.firstname = '$firstname',
             student.middlename = '$middlename',
             student.lastname = '$lastname',
-            student.age = '$age',
-            student.gender = '$gender',
-            student.section = '$section',
-            student.contact = '$contact', -- Corrected field
-            student.yearlvl = '$yearlvl', -- Corrected field
-            student.address = '$address',
+
             credentials.email = '$email',
             credentials.password = '$password'
                $imageQueryPart
         WHERE student.id = '$student_id'
     ";
-
-    // Execute and check the query
     if (mysqli_query($conn, $updateQuery)) {
-        header("Location: ../admin/studentUpdate.php");
+        header("Location: studentProfile.php");
         exit();
     } else {
         echo "Error updating profile: " . mysqli_error($conn);
     }
 }
+$student_query = $conn->prepare("SELECT approved FROM student WHERE id = ?");
+$student_query->bind_param('i', $student_id);
+$student_query->execute();
+$student_query->bind_result($approved);
+$student_query->fetch();
+$student_query->close();
 
+$notifications_query = $conn->prepare("SELECT message FROM notifications WHERE student_id = ? AND is_read = 0");
+$notifications_query->bind_param('i', $student_id);
+$notifications_query->execute();
+$notifications_result = $notifications_query->get_result();
 
+$mark_read_query = $conn->prepare("UPDATE notifications SET is_read = 1 WHERE student_id = ? AND is_read = 0");
+$mark_read_query->bind_param('i', $student_id);
+$mark_read_query->execute();
+
+$forms_query = $conn->prepare("SELECT f.id AS form_id, f.form_name FROM student_forms sf
+                               JOIN forms f ON sf.form_id = f.id
+                               WHERE sf.student_id = ?");
+
+$forms_query->bind_param('i', $student_id);
+$forms_query->execute();
+$forms_result = $forms_query->get_result();
+$forms_query->close();
 ?>
-
-
 
 
 <!DOCTYPE html>
@@ -95,113 +99,118 @@ if (!empty($_FILES['profileImage']['name'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <title>User Profile</title>
-    <link rel="stylesheet" href="admin-css/studentUpdate.css">
-    
+    <link rel="stylesheet" href="../css/studentProfile.css">
 </head>
 <body>
 <main>
 <header>
     <nav>
         <div class="logo">BSIT</div>
-        <div class="nav-icons">
-            <a href="home.php"><i class="bi bi-house-door-fill"></i></a>
-            <a href="#"><i class="bi bi-envelope-fill"></i></a>
-            <div class="dropdown">
-            <a href="studentProfile.php">
-                 <img src="../images-data/<?= htmlspecialchars($student['image']) ?>" alt="Profile Image" class="profile-pic" >
-                <div class="dropdown-content">
-                    <a href="#profile">Profile Settings</a>
-                    <a href="./includes/logout.php">Log out</a>
-                </div>
-            </div>
-            </a>
-        </div>
+       
     </nav>
 </header>
- <form action="../admin/studentUpdate.php" method="POST" enctype="multipart/form-data">
+
 <div class="profile-container">
-   <div class="profile-picture">
-        <?php
-        $imagePath = '../images-data/' . htmlspecialchars($student['image']);
-        if (!empty($student['image']) && file_exists($imagePath)) {
-            echo '<img src="' . $imagePath . '?v=' . time() . '" style="width:120px; height:120px;" alt="Profile Image" id="profileDisplay">';
-        } else {
-            echo '<img src="../images-data/default-image.png" style="width:120px; height:120px;" alt="Default Image" id="profileDisplay">';
-        }
-        ?>                    
-        <input type="file" id="profileImageUpload" name="profileImage" accept="image/*" onchange="previewImage(event)" hidden>
-        <div class="edit-btn" onclick="document.getElementById('profileImageUpload').click()">Edit</div>
-    </div>
+    <img src="../images-data/<?= htmlspecialchars($student['image']) ?>" alt="Profile Image" class="profile-image">
     <div class="profile-info">
-        <h1><?= htmlspecialchars($student['firstname'] . ' ' . $student['lastname']) ?> </h1>  <button onclick="openPopup()">Open Profile</button>
+        <h1><?= htmlspecialchars($student['firstname'] . ' ' . $student['lastname']) ?></h1>
+        <button onclick="openPopup()">Open Profile</button>
         <p><strong>ID:</strong> <?= htmlspecialchars($student['id']) ?></p>
-        <h2><i class="bi bi-mortarboard-fill"></i>Student</h2> 
+        <h2><i class="bi bi-mortarboard-fill"></i> Student</h2><br>
+        <?php if ($student['approved']): ?>
+    <p>This Account has Been Approved.</p>
+<?php elseif ($student['rejected']): ?>
+    <p>This Account has been Rejected</p>
+<?php else: ?>
+    <p>This Account is Waiting For Approval</p>
+<?php endif; ?>
+
     </div>
 </div>
 
 <div class="grid-container">
     <div class="card">
         <h3>Information</h3>
-         <label for="firstname">First Name</label>
-        <input type="text" id="firstname" name="firstname" value="<?= htmlspecialchars($student['firstname']) ?>" required>
+        <p><strong>First Name:</strong> <?= htmlspecialchars($student['firstname']) ?></p>
+        <p><strong>Middle Name:</strong> <?= htmlspecialchars($student['middlename']) ?></p>
+        <p><strong>Last Name:</strong> <?= htmlspecialchars($student['lastname']) ?></p>
 
-       <label for="middlename">Middle Name</label>
-        <input type="text" id="middlename" name="middlename" value="<?= htmlspecialchars($student['middlename']) ?>" required>
-
-        <label for="lastname">Last Name</label>
-        <input type="text" id="lastname" name="lastname" value="<?= htmlspecialchars($student['lastname']) ?>" required>
-
-        <label for="age">Age</label>
-        <input type="number" id="age" name="age" value="<?= htmlspecialchars($student['age']) ?>" required>
-
-        <label for="gender">Gender</label>
-        <select id="gender" name="gender">
-          <option value="Male" <?= $student['gender'] == 'Male' ? 'selected' : '' ?>>Male</option>
-          <option value="Female" <?= $student['gender'] == 'Female' ? 'selected' : '' ?>>Female</option>
-          <option value="Other" <?= $student['gender'] == 'Other' ? 'selected' : '' ?>>Other</option>
-        </select>
     </div>
     <div class="card">
+        <?php
+if (!empty($_SESSION['student_id'])) {
+    $student_id = $_SESSION['student_id'];
+
+    $query = "
+        SELECT student.*, credentials.email
+        FROM student
+        JOIN credentials ON student.id = credentials.student_id
+        WHERE student.id = ?
+    ";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param('i', $student_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result && $result->num_rows > 0) {
+        $student = $result->fetch_assoc();
+    } else {
+        echo "Student profile not found.";
+        exit();
+    }
+
+    $forms_query = $conn->prepare("
+        SELECT f.id AS form_id, f.form_name 
+        FROM student_forms sf
+        JOIN forms f ON sf.form_id = f.id
+        WHERE sf.student_id = ?
+    ");
+    $forms_query->bind_param('i', $student_id);
+    $forms_query->execute();
+    $forms_result = $forms_query->get_result();
+
+    if ($forms_result->num_rows > 0) {
+        while ($form = $forms_result->fetch_assoc()) {
+            $form_id = $form['form_id'];
+
+            $responses_query = $conn->prepare("
+                SELECT fr.response, ff.field_name 
+                FROM form_responses fr
+                JOIN form_fields ff ON fr.field_id = ff.id
+                WHERE fr.form_id = ? AND fr.student_id = ?
+            ");
+            $responses_query->bind_param('ii', $form_id, $student_id);
+            $responses_query->execute();
+            $responses_result = $responses_query->get_result();
+
+            if ($responses_result->num_rows > 0) {
+                
+              echo "<a href='view_responses.php?form_id=" . $form['form_id'] . "'><i class='bi bi-pencil-square'></i></a>";
+
+                
+                while ($response = $responses_result->fetch_assoc()) {
+                    echo "<li style = 'list-style-type: none;'> " . htmlspecialchars($response['field_name']) . ":  " . htmlspecialchars($response['response']) . "</li>";
+                }
+                echo "</ul>";
+            } else {
+            }
+        }
+    } else {
+        echo "<p>No forms found for this student.</p>";
+    }
+} 
+?>
         <h3></h3>
-      <label for="yearlvl">Year Level</label>
-        <select id="yearlvl" name="yearlvl">
-          <option value="First Year" <?= $student['yearlvl'] == 'First Year' ? 'selected' : '' ?>>First Year</option>
-          <option value="Second Year" <?= $student['yearlvl'] == 'Second Year' ? 'selected' : '' ?>>Second Year</option>
-          <option value="Third Year" <?= $student['yearlvl'] == 'Third Year' ? 'selected' : '' ?>>Third Year</option>
-          <option value="Fourth Year" <?= $student['yearlvl'] == 'Fourth Year' ? 'selected' : '' ?>>Fourth Year</option>
-        </select><br>
-
-      <label for="section">Section</label><br>
-        <select id="section" name="section">
-          <option value="A" <?= $student['section'] == 'A' ? 'selected' : '' ?>>A</option>
-          <option value="B" <?= $student['section'] == 'B' ? 'selected' : '' ?>>B</option>
-          <option value="C" <?= $student['section'] == 'C' ? 'selected' : '' ?>>C</option>
-          <option value="D" <?= $student['section'] == 'D' ? 'selected' : '' ?>>D</option>
-          <option value="E" <?= $student['section'] == 'E' ? 'selected' : '' ?>>E</option>
-        </select><br>
-
-       <label for="contact">Contact</label>
-        <input type="text" id="contact" name="contact" value="<?= htmlspecialchars($student['contact']) ?>" required>
-
-       <label for="address">Address</label>
-        <input type="text" id="address" name="address" value="<?= htmlspecialchars($student['address']) ?>" required>
+    
     </div>
     <div class="card">
-      <h3>Credentials</h3>
-         <label for="email">Address</label>
-        <input type="text" id="email" name="email" value="<?= htmlspecialchars($student['email']) ?>" required>
-  
-      <p>
-    <label for="password">Password</label>
-    <input type="password" id="password" name="password" value="<?= htmlspecialchars($student['password']) ?>" required>
-    <button id="togglePassword" style="background: none; border: none; cursor: pointer; margin-left: 10px;">
-        <i id="eyeIcon" class="bi bi-eye-fill"></i>
-    </button>
-    </p>     
+        <h3>Credentials</h3>
+        <p><strong>Email:</strong> <?= htmlspecialchars($student['email']) ?></p>
+
+
     </div>
 </div>
-<button type="submit" name="updatePersonalInfo" class="btn btn-green">Save Changes</button>
- </form>
+
 <?php
 $query = "SELECT p.*, s.firstname, s.lastname, s.image AS profile_image, 
                 (SELECT COUNT(*) FROM likes WHERE post_id = p.id) AS like_count,
@@ -283,11 +292,97 @@ if ($result) {
     ?>
 </main>
 
+    <div id="messageModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <?php if ($forms_result->num_rows > 0): ?>
+                <ul>
+                    <?php
+                    // Reset result pointer to reuse $forms_result
+                    $forms_result->data_seek(0);
+                    while ($form = $forms_result->fetch_assoc()): ?>
+                        <li>
+                            <?= htmlspecialchars($form['form_name']); ?>
+                            <a href="fill_form.php?form_id=<?= $form['form_id']; ?>">Fill Form</a>
+                            <a href="view_responses.php?form_id=<?= $form['form_id']; ?>">View Responses</a>
+                        </li>
+                    <?php endwhile; ?>
+                </ul>
+            <?php else: ?>
+                <p>No Message Yet.</p>
+            <?php endif; ?>
+        </div>
+    </div>
 
+
+<div class="popup-overlay-edit" id="popupOverlay-edit"></div>
+<div class="popup-edit" id="loginPopup">
+       <span class="close">&times;</span>
+  <div class="grid-container">
+
+    <div class="card">
+        <form action="studentProfile.php" method="POST" enctype="multipart/form-data">
+          <div class="profile-picture">
+        <?php
+        $imagePath = '../images-data/' . htmlspecialchars($student['image']);
+        if (!empty($student['image']) && file_exists($imagePath)) {
+            echo '<img src="' . $imagePath . '?v=' . time() . '" style="width:120px; height:120px;" alt="Profile Image" id="profileDisplay">';
+        } else {
+            echo '<img src="../images-data/default-image.png" style="width:120px; height:120px;" alt="Default Image" id="profileDisplay">';
+        }
+        ?>                    
+        <input type="file" id="profileImageUpload" name="profileImage" accept="image/*" onchange="previewImage(event)" hidden>
+        <div class="edit-btn" onclick="document.getElementById('profileImageUpload').click()">Edit</div>
+    </div>
+      <h3>Information</h3>
+     
+        <label for="firstname">First Name</label>
+        <input type="text" id="firstname" name="firstname" value="<?= htmlspecialchars($student['firstname']) ?>" required>
+
+        <label for="middlename">Middle Name</label>
+        <input type="text" id="middlename" name="middlename" value="<?= htmlspecialchars($student['middlename']) ?>" required>
+
+        <label for="lastname">Last Name</label>
+        <input type="text" id="lastname" name="lastname" value="<?= htmlspecialchars($student['lastname']) ?>" required>
+    </div>
+    <div class="card">
+      <h3>Additional Information</h3>
+
+    </div>
+
+    <div class="card">
+      <h3>Credentials</h3>
+         <label for="email">Address</label>
+        <input type="text" id="email" name="email" value="<?= htmlspecialchars($student['email']) ?>" required>
+  
+      <p>
+    <label for="password">Password</label>
+<input type="password" id="password" name="password" value="<?php echo htmlspecialchars($student['password']); ?>" required>
+    <button id="togglePassword" style="background: none; border: none; cursor: pointer; margin-left: 10px;">
+        <i id="eyeIcon" class="bi bi-eye-fill"></i>
+    </button>
+</p>     
+    </div>
+</div>
+<button type="submit" name="updatePersonalInfo" class="btn btn-green">Save Changes</button>
+ </form>
+</div>
 
 <script src="./js/studentProfile.js" ></script>
 <script>
-  // Function to open the popup
+
+const modal = document.getElementById("messageModal");
+const openBtn = document.getElementById("openModalBtn");
+const closeBtn = document.getElementById("closeModalBtn");
+
+openBtn.addEventListener("click", () => {
+  modal.style.display = "block";
+});
+
+closeBtn.addEventListener("click", () => {
+  modal.style.display = "none";
+});
+
   function openPopup() {
     const popup = document.getElementById('loginPopup');
     const overlay = document.getElementById('popupOverlay-edit');
@@ -295,7 +390,6 @@ if ($result) {
     overlay.classList.add('active');
   }
 
-  // Function to close the popup
   function closePopup() {
     const popup = document.getElementById('loginPopup');
     const overlay = document.getElementById('popupOverlay-edit');
@@ -303,33 +397,25 @@ if ($result) {
     overlay.classList.remove('active');
   }
 document.addEventListener("DOMContentLoaded", () => {
-  // Close button functionality
   const closeButton = document.querySelector(".close");
   const overlay = document.getElementById('popupOverlay-edit');
-
-  // Close popup when clicking the close button
   closeButton.addEventListener("click", closePopup);
-
-  // Close popup when clicking the overlay
   overlay.addEventListener("click", closePopup);
 
-  // Password toggle functionality
   const passwordField = document.getElementById('password');
   const togglePassword = document.getElementById('togglePassword');
   const eyeIcon = document.getElementById('eyeIcon');
 
   togglePassword.addEventListener('click', (e) => {
-    e.preventDefault(); // Prevent form submission if button is inside a form
+    e.preventDefault(); 
     const isPasswordVisible = passwordField.type === 'text';
 
     if (isPasswordVisible) {
-      // Hide password
-      passwordField.type = 'password'; // Change to password input type
-      eyeIcon.className = 'bi bi-eye-fill'; // Change icon to open eye
+      passwordField.type = 'password'; 
+      eyeIcon.className = 'bi bi-eye-fill';
     } else {
-      // Show password
-      passwordField.type = 'text'; // Change to text input type
-      eyeIcon.className = 'bi bi-eye-slash-fill'; // Change icon to closed eye
+      passwordField.type = 'text';
+      eyeIcon.className = 'bi bi-eye-slash-fill';
     }
   });
 });
@@ -341,9 +427,6 @@ function previewImage(event) {
     };
     reader.readAsDataURL(event.target.files[0]);
 }
-
-
 </script>
-
 </body>
 </html>

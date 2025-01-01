@@ -64,6 +64,8 @@ $new_students = $conn->query("SELECT * FROM student WHERE is_approved = 0 AND ad
 // Update notification status for new students
 $conn->query("UPDATE student SET admin_notified = 1 WHERE is_approved = 0 AND admin_notified = 0");
 
+$students = $conn->query("SELECT * FROM student")->fetch_all(MYSQLI_ASSOC);
+$forms = $conn->query("SELECT * FROM forms")->fetch_all(MYSQLI_ASSOC);
 
 
 ?>
@@ -371,60 +373,49 @@ function timeAgo($datetime) {
 </section>
 
 <section id="student">
-    <h1>Manage Student</h1>
-    <a href="../RegistrationForm.php"><button>add a student</button></a>
-    <div class="search-container">
-        <input type="text" id="search-input" placeholder="Search students...">
-        <button id="search-btn">Search</button>
-    </div>
-
-    <div class="student-table">
-        <table>
-            <thead>
-                <tr>
-                    <th>Profile</th>
-                    <th>Name</th>
-                    <th>Year Level</th>
-                    <th>Section</th>
-                    <!-- <th>Email</th>
-                    <th>Actions</th> -->
-                </tr>
-            </thead>
- <!-- <tbody>
-    <?php if ($student_result && $student_result->num_rows > 0): ?>
-        <?php while ($row = $student_result->fetch_assoc()): ?>
+    <h2>Manage Students</h2>
+    <h3>Student List</h3>
+    <table class="dashboard-table" id="student-table">
+        <thead>
+            <tr>
+                <th>Profile Picture</th>
+                <th>ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Manage</th>
+            </tr>
+        </thead>
+       <tbody>
+    <?php if ($students): ?>
+        <?php foreach ($students as $student): ?>
             <tr>
                 <td>
-                    <?php if (!empty($row['image'])): ?>
-                        <img src="../images-data/<?php echo $row['image']; ?>" alt="Profile Picture" class="profile-table">
-                    <?php else: ?>
-                        <img src="../images-data/default-profile.jpg" alt="Default Profile" class="profile-table">
-                    <?php endif; ?>
+                    <img src="../images-data/<?= !empty($student['image']) ? htmlspecialchars($student['image']) : 'default-profile.jpg'; ?>" 
+                         alt="Profile Picture" class="profile-pic">
                 </td>
-                <td><?php echo htmlspecialchars($row['firstname']); ?></td>
-                <td><?php echo htmlspecialchars($row['lastname']); ?></td>
-                <!-- <td><?php echo htmlspecialchars($row['yearlvl']); ?></td>
-                <td><?php echo htmlspecialchars($row['section']); ?></td> -->
+                <td><?= htmlspecialchars($student['id']); ?></td>
+                <td><?= htmlspecialchars($student['firstname']); ?></td>
+                <td><?= htmlspecialchars($student['lastname']); ?></td>
                 <td>
-                    <button class="edit-btn"><a style="color: green;" href="./studentUpdate.php"><i class="bi bi-pencil-square"></i></a></button>
-                    <button class="delete-btn"><i style="color: red;" class="bi bi-trash3-fill"></i></button>
-                <a href="#" onclick="showSection('notification')" aria-controls="notification">
-                    <button class="form-btn"><i style="color: blue;" class="bi bi-envelope-paper-fill"></i></button>
-                </a>
-                    
+                    <!-- Correct Edit Button -->
+<a href="studentUpdate.php?id=<?= htmlspecialchars($student['id']); ?>" class="btn btn-primary">Edit</a>
+
+                    <!-- Delete Button -->
+                    <form action="deleteStudent.php" method="POST" style="display:inline;">
+                        <input type="hidden" name="id" value="<?= htmlspecialchars($student['id']); ?>">
+                        <button type="submit" class="delete-btn" onclick="return confirm('Are you sure you want to delete this student?');">Delete</button>
+                    </form>
                 </td>
             </tr>
-        <?php endwhile; ?>
+        <?php endforeach; ?>
     <?php else: ?>
         <tr>
-            <td colspan="6">No students found.</td>
+            <td colspan="5">No students found.</td>
         </tr>
     <?php endif; ?>
-</tbody> -->
+</tbody>
 
-        </table>
-    </div>
-    
+    </table>
 </section>
 
 <section id="settings">
