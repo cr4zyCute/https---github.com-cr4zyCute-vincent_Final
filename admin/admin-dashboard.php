@@ -175,48 +175,96 @@ $forms = $conn->query("SELECT * FROM forms")->fetch_all(MYSQLI_ASSOC);
 
   <h2>Student List</h2>
 <?php
+// Fetch notifications
+$notifications = $conn->query("SELECT * FROM notifications WHERE is_read = 0");
+if (!$notifications) {
+    die("Error fetching notifications: " . $conn->error);
+}
 
-$sql = "SELECT id, firstname, lastname, image FROM student";
-$result = $conn->query($sql);
+// Fetch unapproved students along with their emails and images
+$unapproved_users = $conn->query("
+    SELECT 
+        student.id AS student_id, 
+        student.firstname, 
+        student.image, 
+        credentials.email 
+    FROM 
+        student 
+    INNER JOIN 
+        credentials AS credentials 
+    ON 
+        student.id = credentials.student_id 
+    WHERE 
+        student.approved = 0
+");
+if (!$unapproved_users) {
+    die("Error fetching unapproved users: " . $conn->error);
+}
+
+// Mark notifications as read
+$mark_read = $conn->query("UPDATE notifications SET is_read = 1 WHERE is_read = 0");
+if (!$mark_read) {
+    die("Error updating notifications: " . $conn->error);
+}
+
+// Handle file uploads
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['profileImage'])) {
+    $imageName = basename($_FILES['profileImage']['name']);
+    $imagePath = 'images-data/' . $imageName;
+
+    if (!empty($imageName)) {
+        if (move_uploaded_file($_FILES['profileImage']['tmp_name'], $imagePath)) {
+            echo "Image uploaded successfully.";
+        } else {
+            echo "Failed to upload image.";
+            exit();
+        }
+    }
+}
 ?>
-<table class="dashboard-table">
-    <thead>
-        <tr>
-            <th>Profile Picture</th>
-            <th>ID</th>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <!-- <th>Year Level</th>
-            <th>Section</th> -->
-        </tr>
-    </thead>
-    <tbody>
-        <?php if ($result->num_rows > 0): ?>
-            <?php while ($row = $result->fetch_assoc()): ?>
-                <tr>
-                    <td>
-                        <?php if (!empty($row['image'])): ?>
-                            <img src="../images-data/<?php echo $row['image']; ?>" alt="Profile Picture" class="profile-table">
-                        <?php else: ?>
-                            <img src="images-data/default-profile.jpg" alt="Default Profile" class="profile-pic">
-                        <?php endif; ?>
-                    </td>
-                    <td><?php echo $row['id']; ?></td>
-                    <td><?php echo htmlspecialchars($row['firstname']); ?></td>
-                    <td><?php echo htmlspecialchars($row['lastname']); ?></td>
-                    <!-- <td><?php echo htmlspecialchars($row['yearlvl']); ?></td>
-                    <td><?php echo htmlspecialchars($row['section']); ?></td> -->
-                </tr>
-            <?php endwhile; ?>
-        <?php else: ?>
-            <tr>
-                <td colspan="6">No students found.</td>
-            </tr>
-        <?php endif; ?>
-    </tbody>
-</table>
-<?php
-?>
+ <h2>Unapproved Students</h2>
+    <?php if ($unapproved_users->num_rows > 0): ?>
+        <form method="POST" action="approve_users.php">
+            <button type="submit" name="action" value="approve" style="background-color: #007bff; color: #fff; border: none; padding: 10px 20px; font-size: 14px; border-radius: 5px; cursor: pointer; margin-right: 10px; transition: background-color 0.3s ease;">Approve Selected</button>
+            <button type="submit" name="action" value="reject" style="background-color: #dc3545; color: #fff; border: none; padding: 10px 20px; font-size: 14px; border-radius: 5px; cursor: pointer; transition: background-color 0.3s ease;">Reject Selected</button>
+  
+            <table style="width: 100%; border-collapse: collapse; margin-top: 20px; background-color: #fff; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); border: 1px solid #ddd;">
+                <thead>
+                    <tr style="background-color: #f4f4f4; font-weight: bold;">
+                        <th style="padding: 12px 15px; text-align: left; border: 1px solid #ddd; font-size: 14px; color: #333;">Profile</th>
+                        <th style="padding: 12px 15px; text-align: left; border: 1px solid #ddd; font-size: 14px; color: #333;">Username</th>
+                        <th style="padding: 12px 15px; text-align: left; border: 1px solid #ddd; font-size: 14px; color: #333;">Email</th>
+                        <th style="padding: 12px 15px; text-align: left; border: 1px solid #ddd; font-size: 14px; color: #333;">Approve</th>
+                        <th style="padding: 12px 15px; text-align: left; border: 1px solid #ddd; font-size: 14px; color: #333;">Reject</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php while ($student = $unapproved_users->fetch_assoc()): ?>
+                        <tr style="background-color: #f9f9f9; border: 1px solid #ddd;">
+                           <td style="padding: 12px 15px; text-align: left; border: 1px solid #ddd;">
+                            <center>
+                                <img src="../images-data/<?= !empty($student['image']) ? htmlspecialchars($student['image']) : 'default-profile.jpg'; ?>" 
+                                    alt="Profile Picture" 
+                                    style="width: 150px; height: 150px;object-fit: cover; border: 1px solid #ccc;">
+                            </center>
+                            </td>
+
+                            <td style="padding: 12px 15px; text-align: left; border: 1px solid #ddd;"><?= htmlspecialchars($student['firstname']); ?></td>
+                            <td style="padding: 12px 15px; text-align: left; border: 1px solid #ddd;"><?= htmlspecialchars($student['email']); ?></td>
+                            <td style="padding: 12px 15px; text-align: left; border: 1px solid #ddd;">
+                                <input type="checkbox" name="approve_users[]" value="<?= $student['student_id']; ?>">
+                            </td>
+                            <td style="padding: 12px 15px; text-align: left; border: 1px solid #ddd;">
+                                <input type="checkbox" name="reject_users[]" value="<?= $student['student_id']; ?>">
+                            </td>
+                        </tr>
+                    <?php endwhile; ?>
+                </tbody>
+            </table>
+      </form>
+    <?php else: ?>
+        <p>No students awaiting approval.</p>
+    <?php endif; ?>
 </section>
 
 <section id="home">
@@ -375,6 +423,14 @@ function timeAgo($datetime) {
 <section id="student">
     <h2>Manage Students</h2>
     <h3>Student List</h3>
+    
+    <!-- Search Input -->
+    <input 
+        type="text" 
+        id="searchInput" 
+        placeholder="Search by ID, First Name, or Last Name..." 
+        style="width: 100%; padding: 10px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px;">
+
     <table class="dashboard-table" id="student-table">
         <thead>
             <tr>
@@ -385,38 +441,68 @@ function timeAgo($datetime) {
                 <th>Manage</th>
             </tr>
         </thead>
-       <tbody>
-    <?php if ($students): ?>
-        <?php foreach ($students as $student): ?>
-            <tr>
-                <td>
-                    <img src="../images-data/<?= !empty($student['image']) ? htmlspecialchars($student['image']) : 'default-profile.jpg'; ?>" 
-                         alt="Profile Picture" class="profile-pic">
-                </td>
-                <td><?= htmlspecialchars($student['id']); ?></td>
-                <td><?= htmlspecialchars($student['firstname']); ?></td>
-                <td><?= htmlspecialchars($student['lastname']); ?></td>
-                <td>
-                    <!-- Correct Edit Button -->
-<a href="studentUpdate.php?id=<?= htmlspecialchars($student['id']); ?>" class="btn btn-primary">Edit</a>
+        <tbody>
+            <?php if ($students): ?>
+                <?php foreach ($students as $student): ?>
+                    <tr>
+                        <td>
+                            <center>
+                                <img src="../images-data/<?= !empty($student['image']) ? htmlspecialchars($student['image']) : 'default-profile.jpg'; ?>" 
+                                    alt="Profile Picture" 
+                                    style="width: 150px; height: 150px; object-fit: cover; border: 1px solid #ccc;">
+                            </center>
+                        </td>
+                        <td><?= htmlspecialchars($student['id']); ?></td>
+                        <td><?= htmlspecialchars($student['firstname']); ?></td>
+                        <td><?= htmlspecialchars($student['lastname']); ?></td>
+                        <td>
+                            <!-- Edit Button -->
+                                <a href="studentUpdate.php?id=<?= htmlspecialchars(string: $student['id']); ?>" 
+                                style="display: inline-block; background-color: #3bd20f; color: #fff; padding: 10px 15px; font-size: 16px; text-align: center; text-decoration: none; border-radius: 5px; border: 1px solid transparent; transition: background-color 0.3s ease;" 
+                                onmouseover="this.style.backgroundColor='#00ff00 ';" 
+                                onmouseout="this.style.backgroundColor='#5dff2e';">
+                                <i class="bi bi-pencil-square" style="font-size: 16px;"></i>
+                                </a>
 
-                    <!-- Delete Button -->
-                    <form action="deleteStudent.php" method="POST" style="display:inline;">
-                        <input type="hidden" name="id" value="<?= htmlspecialchars($student['id']); ?>">
-                        <button type="submit" class="delete-btn" onclick="return confirm('Are you sure you want to delete this student?');">Delete</button>
-                    </form>
-                </td>
-            </tr>
-        <?php endforeach; ?>
-    <?php else: ?>
-        <tr>
-            <td colspan="5">No students found.</td>
-        </tr>
-    <?php endif; ?>
-</tbody>
 
+                            <!-- Delete Button -->
+                            <form action="deleteStudent.php" method="POST" style="display:inline;">
+                                <input type="hidden" name="id" value="<?= htmlspecialchars($student['id']); ?>">
+                                <button type="submit"  style="display: inline-block; background-color:rgb(255, 0, 0); color: #fff; padding: 10px 15px; font-size: 16px; text-align: center; text-decoration: none; border-radius: 5px; border: 1px solid transparent; transition: background-color 0.3s ease;" 
+                                onmouseover="this.style.backgroundColor='#ff7860';" 
+                                onmouseout="this.style.backgroundColor='#c11d00';"
+                                onclick="return confirm('Are you sure you want to delete this student?');"><i class="bi bi-trash3-fill"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <tr>
+                    <td colspan="5">No students found.</td>
+                </tr>
+            <?php endif; ?>
+        </tbody>
     </table>
 </section>
+
+<script>
+    document.getElementById('searchInput').addEventListener('keyup', function() {
+        const filter = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#student-table tbody tr');
+        
+        rows.forEach(row => {
+            const id = row.cells[1].textContent.toLowerCase();
+            const firstName = row.cells[2].textContent.toLowerCase();
+            const lastName = row.cells[3].textContent.toLowerCase();
+
+            if (id.includes(filter) || firstName.includes(filter) || lastName.includes(filter)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+</script>
 
 <section id="settings">
             <h1>Settings</h1>

@@ -89,7 +89,7 @@ if ($result->num_rows > 0) {
             <a href="studentProfile.php">
                  <img src="images-data/<?= htmlspecialchars($student['image']) ?>" alt="Profile Image" class="profile-image" >
                 <div class="dropdown-content">
-                    <a href="#profile">Profile Settings</a>
+                    <a href="studentProfile.php">Profile Settings</a>
                     <a href="./includes/logout.php">Log out</a>
                 </div>
             </div>

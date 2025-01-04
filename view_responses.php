@@ -161,7 +161,7 @@ $delete_responses_query->execute();
                         <tr>
                             <th>Field</th>
                             <th>Response</th>
-                            <th>Action</th>
+                           
                         </tr>
                     </thead>
                     <tbody>
@@ -174,7 +174,7 @@ $delete_responses_query->execute();
                                     name="responses[<?= $response['response_id']; ?>]" 
                                     value="<?= htmlspecialchars($response['response']); ?>">
                             </td>
-                            <td>
+                            <!-- <td>
                                 <form action="delete_field.php" method="POST" style="display:inline;">
                                     <input type="hidden" name="field_id" value="<?= $response['response_id']; ?>">
                                     <input type="hidden" name="form_id" value="<?= $form_id; ?>">
@@ -185,7 +185,7 @@ $delete_responses_query->execute();
                                         Delete
                                     </button>
                                 </form>
-                            </td>
+                            </td> -->
                         </tr>
                     <?php endwhile; ?>
                     </tbody>
@@ -195,7 +195,7 @@ $delete_responses_query->execute();
         <?php else: ?>
             <p class="no-responses">No responses submitted yet.</p>
         <?php endif; ?>
-        <a href="user_profile.php">Back to Dashboard</a>
+        <a href="studentProfile.php">Back to Dashboard</a>
     </div>
 </body>
 </html>

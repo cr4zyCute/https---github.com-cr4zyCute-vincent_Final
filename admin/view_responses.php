@@ -1,96 +1,123 @@
 <?php
-session_start();
-if (!isset($_SESSION['student_id'])) {
-    header('Location: login.php');
-    exit;
+include '../database/dbcon.php';
+
+if (isset($_GET['id'])) {
+    $student_id = intval($_GET['id']);
+
+    // Fetch student details
+    $student_query = $conn->prepare("
+        SELECT student.*, credentials.email 
+        FROM student
+        LEFT JOIN credentials ON student.id = credentials.student_id
+        WHERE student.id = ?
+    ");
+    $student_query->bind_param('i', $student_id);
+    $student_query->execute();
+    $student_result = $student_query->get_result();
+
+    if ($student_result->num_rows > 0) {
+        $student = $student_result->fetch_assoc();
+    } else {
+        die("Student not found.");
+    }
+
+    // Fetch forms assigned to the student
+    $forms_query = $conn->prepare("
+        SELECT f.id AS form_id, f.form_name 
+        FROM student_forms sf
+        JOIN forms f ON sf.form_id = f.id
+        WHERE sf.student_id = ?
+    ");
+    $forms_query->bind_param('i', $student_id);
+    $forms_query->execute();
+    $forms_result = $forms_query->get_result();
+} else {
+    die("No student ID provided.");
 }
-
-include 'database/dbcon.php';
-$student_id = $_SESSION['student_id'];
-
-// Get the form ID from the query string
-if (!isset($_GET['form_id']) || empty($_GET['form_id'])) {
-    echo "No form selected.";
-    exit;
-}
-
-$form_id = intval($_GET['form_id']);
-
-// Fetch form name
-$form_query = $conn->prepare("SELECT form_name FROM forms WHERE id = ?");
-$form_query->bind_param('i', $form_id);
-$form_query->execute();
-$form_result = $form_query->get_result();
-
-if ($form_result->num_rows === 0) {
-    echo "Form not found.";
-    exit;
-}
-
-$form = $form_result->fetch_assoc();
-
-// Fetch submitted responses
-// Fetch submitted responses
-$responses_query = $conn->prepare("
-    SELECT fr.id as response_id, ff.field_name, fr.response 
-    FROM form_responses fr 
-    JOIN form_fields ff ON fr.field_id = ff.id 
-    WHERE fr.student_id = ? AND fr.form_id = ?
-");
-$responses_query->bind_param('ii', $student_id, $form_id);
-$responses_query->execute();
-$responses = $responses_query->get_result();
-
-$delete_responses_query = $conn->prepare("DELETE FROM form_responses WHERE field_id = ?");
-$delete_responses_query->bind_param('i', $field_id);
-$delete_responses_query->execute();
-
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Edit Responses</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <title>Student Profile</title>
+    <link rel="stylesheet" href="../css/studentProfile.css">
 </head>
 <body>
-    <h1>Edit Responses for <?= htmlspecialchars($form['form_name']); ?></h1>
-    <?php if ($responses->num_rows > 0): ?>
-        <form action="update_responses.php" method="POST">
-            <input type="hidden" name="form_id" value="<?= $form_id; ?>">
-            <table border="1">
-                <thead>
-                    <tr>
-                        <th>Field</th>
-                        <th>Response</th>
-                    </tr>
-                </thead>
-            <tbody>
-    <?php while ($response = $responses->fetch_assoc()): ?>
-        <tr>
-            <td><?= htmlspecialchars($response['field_name']); ?></td>
-            <td>
-                <input 
-                    type="text" 
-                    name="responses[<?= $response['response_id']; ?>]" 
-                    value="<?= htmlspecialchars($response['response']); ?>">
-            </td>
-            <td>
-                <form action="delete_field.php" method="POST" style="display:inline;">
-                    <input type="hidden" name="field_id" value="<?= $response['response_id']; ?>">
-                    <input type="hidden" name="form_id" value="<?= $form_id; ?>">
-                    <button type="submit" onclick="return confirm('Are you sure you want to delete this field?');">Delete</button>
-                </form>
-            </td>
-        </tr>
-    <?php endwhile; ?>
-</tbody>
+<header>
+    <nav>
+        <a href="./admin-dashboard.php"><i class="bi bi-arrow-90deg-left"></i></a>
+        <div class="logo">BSIT</div>
+    </nav>
+</header>
 
-            </table>
-            <button type="submit">Save Changes</button>
-        </form>
+<div class="profile-container">
+    <div class="profile-picture">
+        <img src="<?= file_exists('../images-data/' . htmlspecialchars($student['image'])) && !empty($student['image']) ? '../images-data/' . htmlspecialchars($student['image']) : '../images-data/default-image.png'; ?>" 
+             alt="Profile Image" class="profile-image" style="width: 120px; height: 120px;">
+    </div>
+    <div class="profile-info">
+        <h1><?= htmlspecialchars($student['firstname'] . ' ' . $student['lastname']); ?></h1>
+        <p><strong>ID:</strong> <?= htmlspecialchars($student['id']); ?></p>
+        <p><strong>Email:</strong> <?= htmlspecialchars($student['email']); ?></p>
+    </div>
+</div>
+
+<div class="forms-container">
+    <h2>Assigned Forms</h2>
+    <?php if ($forms_result->num_rows > 0): ?>
+        <?php while ($form = $forms_result->fetch_assoc()): ?>
+            <div class="form-section">
+                <h3><?= htmlspecialchars($form['form_name']); ?></h3>
+                <table border="1">
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Response</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        $responses_query = $conn->prepare("
+                            SELECT fr.id as response_id, ff.field_name, fr.response 
+                            FROM form_responses fr 
+                            JOIN form_fields ff ON fr.field_id = ff.id 
+                            WHERE fr.student_id = ? AND fr.form_id = ?
+                        ");
+                        $responses_query->bind_param('ii', $student_id, $form['form_id']);
+                        $responses_query->execute();
+                        $responses_result = $responses_query->get_result();
+
+                        if ($responses_result->num_rows > 0):
+                            while ($response = $responses_result->fetch_assoc()): ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($response['field_name']); ?></td>
+                                    <td><?= htmlspecialchars($response['response']); ?></td>
+                                    <td>
+                                        <a href="edit_response.php?response_id=<?= $response['response_id']; ?>" class="btn-edit">Edit</a>
+                                        <form action="delete_response.php" method="POST" style="display:inline;">
+                                            <input type="hidden" name="response_id" value="<?= $response['response_id']; ?>">
+                                            <button type="submit" onclick="return confirm('Are you sure you want to delete this response?');">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            <?php endwhile; 
+                        else: ?>
+                            <tr>
+                                <td colspan="3">No responses found for this form.</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endwhile; ?>
     <?php else: ?>
-        <p>No responses submitted yet.</p>
+        <p>No forms assigned to this student.</p>
     <?php endif; ?>
-    <a href="user_profile.php">Back to Dashboard</a>
+</div>
+
 </body>
 </html>

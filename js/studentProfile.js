@@ -4,13 +4,13 @@
 
         dropdownToggles.forEach(toggle => {
             toggle.addEventListener('click', function(event) {
-                event.preventDefault(); // Prevent the default anchor behavior
-                const dropdownContent = this.nextElementSibling; // Get the associated dropdown content
+                event.preventDefault(); 
+                const dropdownContent = this.nextElementSibling; 
                 dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
             });
         });
 
-        // Close dropdowns if clicking outside
+        
         window.addEventListener('click', function(event) {
             dropdownToggles.forEach(toggle => {
                 const dropdownContent = toggle.nextElementSibling;
@@ -23,7 +23,7 @@
      
  
  document.addEventListener("DOMContentLoaded", () => {
-    // Handle likes
+    
     document.querySelectorAll(".like-button").forEach(button => {
         button.addEventListener("click", () => {
             const postId = button.getAttribute("data-post-id");
@@ -43,7 +43,7 @@
         });
     });
 
-    // Handle comments
+    
     document.querySelectorAll(".comment-form").forEach(form => {
         form.addEventListener("submit", e => {
             e.preventDefault();
@@ -58,7 +58,7 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === "success") {
-                        // Append new comment dynamically
+                        
                         const commentsSection = document.querySelector(`#comments-${postId}`);
                         const newComment = document.createElement("div");
                         newComment.classList.add("comment");
@@ -85,19 +85,19 @@
 
 
 
-  let allFiles = []; // Global array to store all selected files
+  let allFiles = []; 
 
   function triggerFileUpload() {
     document.getElementById('media-upload').click();
   }
 
   function previewFiles(event) {
-    const newFiles = Array.from(event.target.files); // Get newly selected files
+    const newFiles = Array.from(event.target.files); 
 
-    // Append new files to the global file list
+    
     allFiles = [...allFiles, ...newFiles];
 
-    // Update the preview display
+    
     displayFiles(allFiles);
 
   
@@ -140,17 +140,17 @@
   }
 
   function clearFiles() {
-    // Clear the global file array
+    
     allFiles = [];
 
-    // Clear the preview display
+    
     const previewContainer = document.getElementById('media-preview');
     previewContainer.innerHTML = '';
 
-    // Clear the file input (reset its value)
+    
     document.getElementById('media-upload').value = '';
 
-    // Hide the "Cancel Post" button
+    
     toggleDeleteButton(false);
   }
 
@@ -159,23 +159,23 @@
     deleteButton.style.display = show ? 'block' : 'none';
   }
 
-// function previewFiles(event) {
-//     const previewContainer = document.getElementById('media-preview');
-//     previewContainer.innerHTML = '';
-//     const files = event.target.files;
 
-//     for (let file of files) {
-//         const fileReader = new FileReader();
-//         fileReader.onload = (e) => {
-//             const media = document.createElement(file.type.startsWith('image/') ? 'img' : 'video');
-//             media.src = e.target.result;
-//             media.controls = file.type.startsWith('video/');
-//             media.classList.add('preview-media');
-//             previewContainer.appendChild(media);
-//         };
-//         fileReader.readAsDataURL(file);
-//     }
-// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 document.addEventListener('DOMContentLoaded', function () {
     const commentButtons = document.querySelectorAll('.comment-button');
 
@@ -194,13 +194,13 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 function deletePost(postId) {
     if (confirm('Are you sure you want to delete this post?')) {
-        // Send an AJAX request to delete the post
+        
         fetch(`delete_post.php?id=${postId}`, { method: 'DELETE' })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
                     alert('Post deleted successfully.');
-                    location.reload(); // Reload the page or remove the post dynamically
+                    location.reload(); 
                 } else {
                     alert('Error deleting the post.');
                 }
@@ -211,17 +211,16 @@ function deletePost(postId) {
 
     function deletePost(postId) {
         if (confirm('Are you sure you want to delete this post?')) {
-            // Send an AJAX request to delete the post
+            
             var xhr = new XMLHttpRequest();
-            xhr.open('POST', 'delete_post.php', true);  // Point to delete_post.php
+            xhr.open('POST', 'delete_post.php', true);  
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.onreadystatechange = function() {
                 if (xhr.readyState == 4 && xhr.status == 200) {
-                    alert(xhr.responseText);  // Display response from server
-                    location.reload();  // Reload the page to reflect changes
+                    alert(xhr.responseText);  
+                    location.reload();  
                 }
             };
-            xhr.send('delete_post_id=' + postId);  // Send the post ID to delete
+            xhr.send('delete_post_id=' + postId);  
         }
     }
-
