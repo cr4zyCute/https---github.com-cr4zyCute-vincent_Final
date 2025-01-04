@@ -47,4 +47,3 @@ if (!empty($content) || !empty($mediaPaths)) {
 
 header("Location: home.php");
 exit();
-?>

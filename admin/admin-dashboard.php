@@ -204,39 +204,39 @@ $unapproved_students_count = $unapproved_students_result->fetch_assoc()['unappro
 
                 <div class="left-section">
                     <?php
-                    function timeAgo($datetime)
+                    date_default_timezone_set("Asia/Manila");
+
+                    function timeAgo($time, $tense = 'ago')
                     {
+                        static $periods = array('year', 'month', 'day', 'hour', 'minute');
 
-                        $timestamp = strtotime($datetime);
-
-                        if ($timestamp === false) {
-                            return "Invalid datetime format";
+                        if ((strtotime($time) <= 0)) {
+                            trigger_error("Wrong time format: $time", E_USER_ERROR);
                         }
 
-                        $currentTime = time();
-                        $timeDifference = $currentTime - $timestamp;
+                        $now = new DateTime('now', new DateTimeZone('Asia/Manila'));
+                        $then = new DateTime($time, new DateTimeZone('Asia/Manila'));
+                        $diff = $now->diff($then)->format('%y %m %d %h %i');
+                        $diff = explode(' ', $diff);
+                        $diff = array_combine($periods, $diff);
+                        $diff = array_filter($diff);
 
-                        $minutes = floor($timeDifference / 60);
-                        $hours = floor($minutes / 60);
-                        $days = floor($hours / 24);
+                        $period = key($diff);
+                        $value = current($diff);
 
-                        if ($timeDifference < 60) {
-                            return "Just now";
-                        } elseif ($minutes == 1) {
-                            return "1 minute ago";
-                        } elseif ($minutes < 60) {
-                            return "$minutes minutes ago";
-                        } elseif ($hours == 1) {
-                            return "1 hour ago";
-                        } elseif ($hours < 24) {
-                            return "$hours hours ago";
-                        } elseif ($days == 1) {
-                            return "1 day ago";
-                        } else {
-                            return "$days days ago";
+                        if ($period === 'minute' && $value == 0) {
+                            $value = 1;
                         }
+
+                        if ($value) {
+                            if ($value == 1) {
+                                $period = rtrim($period, 's');
+                            }
+                            return "$value $period $tense";
+                        }
+
+                        return "just now";
                     }
-
                     $query = "SELECT p.*, s.firstname, s.lastname, s.image AS profile_image, 
                 (SELECT COUNT(*) FROM likes WHERE post_id = p.id) AS like_count,
                 (SELECT COUNT(*) FROM comments WHERE post_id = p.id) AS comment_count
@@ -250,7 +250,8 @@ $unapproved_students_count = $unapproved_students_result->fetch_assoc()['unappro
                             echo '<div class="post">';
                             echo '<div class="post-header">';
                             echo '<div class="delete-container">';
-                            echo '<button class="delete-button" onclick="deletePost(' . htmlspecialchars($post['id']) . ')"><i class="bi bi-trash3-fill"></i></button>';
+                            // echo '<button class="delete-button" onclick="deletePost(' . htmlspecialchars($post['id']) . ')"><i class="bi bi-trash3-fill"></i></button>';
+                            echo "<button class='delete-button' onclick='deletePost(" . htmlspecialchars($post['id']) . ")'><i class='bi bi-trash3-fill'></i></button>";
                             echo '</div>';
                             echo '<img src="../images-data/' . htmlspecialchars($post['profile_image']) . '" alt="Profile Image" class="profile-pic">';
                             echo '<div class="post-user-info">';
@@ -310,9 +311,6 @@ $unapproved_students_count = $unapproved_students_result->fetch_assoc()['unappro
                                 }
                             }
                             echo '</div>';
-
-
-
                             echo '</div>';
                         }
                     }
