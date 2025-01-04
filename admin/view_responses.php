@@ -1,4 +1,10 @@
 <?php
+session_start();
+if (!isset($_SESSION['student_id'])) {
+    header('Location: login.php');
+    exit;
+}
+
 include '../database/dbcon.php';
 
 if (isset($_GET['id'])) {
@@ -34,6 +40,25 @@ if (isset($_GET['id'])) {
 } else {
     die("No student ID provided.");
 }
+
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $responses = $_POST['responses'] ?? [];
+
+    foreach ($responses as $response_id => $response) {
+        // Update each response in the database
+        $update_query = $conn->prepare("
+            UPDATE form_responses 
+            SET response = ? 
+            WHERE id = ?
+        ");
+        $update_query->bind_param('si', $response, $response_id);
+        $update_query->execute();
+    }
+
+    header("Location: viewresponses.php?id=$student_id");
+    exit;
+}
 ?>
 
 <!DOCTYPE html>
@@ -45,6 +70,158 @@ if (isset($_GET['id'])) {
     <title>Student Profile</title>
     <link rel="stylesheet" href="../css/studentProfile.css">
 </head>
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+}
+
+/* Header Styles */
+header {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+header nav a {
+    color: white;
+    text-decoration: none;
+    font-size: 1.2rem;
+    margin-right: 15px;
+    display: flex;
+    align-items: center;
+}
+
+header nav a i {
+    margin-right: 5px;
+}
+
+header .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* Profile Section */
+.profile-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px;
+    padding: 20px;
+    background-color: white;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+.profile-picture img {
+    border-radius: 50%;
+    border: 4px solid #4CAF50;
+    margin-right: 20px;
+}
+
+.profile-info h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    color: #333;
+}
+
+.profile-info p {
+    margin: 5px 0;
+    font-size: 1rem;
+    color: #666;
+}
+
+/* Forms Section */
+.forms-container {
+    margin: 20px;
+    padding: 20px;
+    background-color: white;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+.forms-container h2 {
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    color: #333;
+    border-bottom: 2px solid #4CAF50;
+    padding-bottom: 5px;
+}
+
+.form-section {
+    margin-bottom: 20px;
+}
+
+.form-section h3 {
+    font-size: 1.2rem;
+    color: #4CAF50;
+    margin-bottom: 10px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+table th, table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+}
+
+table th {
+    background-color: #f4f4f4;
+    color: #333;
+    font-weight: bold;
+}
+
+table td input[type="text"] {
+    width: 100%;
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+button[type="submit"] {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+button[type="submit"]:hover {
+    background-color: #45a049;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .profile-container {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .profile-picture {
+        margin-bottom: 15px;
+    }
+
+    table {
+        font-size: 0.9rem;
+    }
+}
+
+</style>
+
 <body>
 <header>
     <nav>
@@ -67,56 +244,54 @@ if (isset($_GET['id'])) {
 
 <div class="forms-container">
     <h2>Assigned Forms</h2>
-    <?php if ($forms_result->num_rows > 0): ?>
-        <?php while ($form = $forms_result->fetch_assoc()): ?>
-            <div class="form-section">
-                <h3><?= htmlspecialchars($form['form_name']); ?></h3>
-                <table border="1">
-                    <thead>
-                        <tr>
-                            <th>Field</th>
-                            <th>Response</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        $responses_query = $conn->prepare("
-                            SELECT fr.id as response_id, ff.field_name, fr.response 
-                            FROM form_responses fr 
-                            JOIN form_fields ff ON fr.field_id = ff.id 
-                            WHERE fr.student_id = ? AND fr.form_id = ?
-                        ");
-                        $responses_query->bind_param('ii', $student_id, $form['form_id']);
-                        $responses_query->execute();
-                        $responses_result = $responses_query->get_result();
-
-                        if ($responses_result->num_rows > 0):
-                            while ($response = $responses_result->fetch_assoc()): ?>
-                                <tr>
-                                    <td><?= htmlspecialchars($response['field_name']); ?></td>
-                                    <td><?= htmlspecialchars($response['response']); ?></td>
-                                    <td>
-                                        <a href="edit_response.php?response_id=<?= $response['response_id']; ?>" class="btn-edit">Edit</a>
-                                        <form action="delete_response.php" method="POST" style="display:inline;">
-                                            <input type="hidden" name="response_id" value="<?= $response['response_id']; ?>">
-                                            <button type="submit" onclick="return confirm('Are you sure you want to delete this response?');">Delete</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            <?php endwhile; 
-                        else: ?>
+    <form method="POST" action="">
+        <?php if ($forms_result->num_rows > 0): ?>
+            <?php while ($form = $forms_result->fetch_assoc()): ?>
+                <div class="form-section">
+                    <h3><?= htmlspecialchars($form['form_name']); ?></h3>
+                    <table border="1">
+                        <thead>
                             <tr>
-                                <td colspan="3">No responses found for this form.</td>
+                                <th>Field</th>
+                                <th>Response</th>
                             </tr>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
-        <?php endwhile; ?>
-    <?php else: ?>
-        <p>No forms assigned to this student.</p>
-    <?php endif; ?>
+                        </thead>
+                        <tbody>
+                            <?php
+                            $responses_query = $conn->prepare("
+                                SELECT fr.id as response_id, ff.field_name, fr.response 
+                                FROM form_responses fr 
+                                JOIN form_fields ff ON fr.field_id = ff.id 
+                                WHERE fr.student_id = ? AND fr.form_id = ?
+                            ");
+                            $responses_query->bind_param('ii', $student_id, $form['form_id']);
+                            $responses_query->execute();
+                            $responses_result = $responses_query->get_result();
+
+                            if ($responses_result->num_rows > 0):
+                                while ($response = $responses_result->fetch_assoc()): ?>
+                                    <tr>
+                                        <td><?= htmlspecialchars($response['field_name']); ?></td>
+                                        <td>
+                                            <input type="text" name="responses[<?= $response['response_id']; ?>]" 
+                                                   value="<?= htmlspecialchars($response['response']); ?>">
+                                        </td>
+                                    </tr>
+                                <?php endwhile; 
+                            else: ?>
+                                <tr>
+                                    <td colspan="2">No responses found for this form.</td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endwhile; ?>
+            <button type="submit">Save Changes</button>
+        <?php else: ?>
+            <p>No forms assigned to this student.</p>
+        <?php endif; ?>
+    </form>
 </div>
 
 </body>

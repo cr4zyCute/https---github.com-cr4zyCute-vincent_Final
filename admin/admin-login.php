@@ -15,8 +15,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
     } else {
         $user = mysqli_fetch_assoc($email_check_result);
         if ($user['admin_password'] === $password) {
-            $_SESSION['admin_id'] = $user['id']; // Set admin_id in session
-            $_SESSION['admin_email'] = $user['admin_email']; // Optional, if needed elsewhere
+            $_SESSION['admin_id'] = $user['id']; 
+            $_SESSION['admin_email'] = $user['admin_email'];
             echo '
                 <link rel="stylesheet" href="../css/loading.css" />
                 <div class="loading-page">

@@ -133,9 +133,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <div class="card">
       <h3>Additional Information</h3>
+      
 <?php
-
-    // Query to fetch student details
     $query = "
         SELECT student.*, credentials.email
         FROM student
@@ -200,10 +199,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($responses_result->num_rows > 0) {
                 
-           echo "<a href='viewresponses.php?id=" . htmlspecialchars($student['id']) . "'>View Responses<i class='bi bi-pencil-square'></i></a>";
-
-
-                
+           echo "<a href='view_responses.php?id=" . htmlspecialchars($student['id']) . "'><i class='bi bi-pencil-square'></i></a>";
                 while ($response = $responses_result->fetch_assoc()) {
                     echo "<li style = 'list-style-type: none;'> " . htmlspecialchars($response['field_name']) . ":  " . htmlspecialchars($response['response']) . "</li>";
                 }

@@ -12,13 +12,13 @@ $conn->query("UPDATE student SET admin_notified = 1 WHERE is_approved = 0 AND ad
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <title>Admin Dashboard</title>
     <style>
-
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
@@ -29,43 +29,46 @@ $conn->query("UPDATE student SET admin_notified = 1 WHERE is_approved = 0 AND ad
             flex-direction: column;
             height: 100vh;
         }
+
         header {
             background-color: #007bff;
             color: white;
-            
+
             text-align: center;
             font-size: 1.5rem;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+
         main {
             display: flex;
             flex: 1;
             height: calc(100vh - 5rem);
         }
+
         .button-container {
-                display: flex;
-                position: relative;
-                left: 70%;
-            }
+            display: flex;
+            position: relative;
+            left: 70%;
+        }
 
-            #searchInput {
-                width: 90%;
-                padding: 10px 15px;
-                margin-bottom: 15px;
-                font-size: 16px;
-                border: 1px solid #ced4da;
-                border-radius: 5px;
-                transition: all 0.3s ease;
-                background-color: #f8f9fa;
-            }
+        #searchInput {
+            width: 90%;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            font-size: 16px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            background-color: #f8f9fa;
+        }
 
-            #searchInput:focus {
-                outline: none;
-                border-color: #007bff;
-                box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-                background-color: #ffffff;
-            }
-            
+        #searchInput:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+            background-color: #ffffff;
+        }
+
         .sidebar {
             width: 25%;
             background-color: #ffffff;
@@ -74,24 +77,29 @@ $conn->query("UPDATE student SET admin_notified = 1 WHERE is_approved = 0 AND ad
             overflow-y: auto;
             height: 100%;
         }
+
         .content {
             width: 75%;
             padding: 2rem;
             overflow-y: auto;
         }
-        h1, h2 {
+
+        h1,
+        h2 {
             margin-bottom: 1rem;
         }
-            section {
+
+        section {
             margin: 0;
             padding: 0;
-            overflow-x: hidden; 
+            overflow-x: hidden;
         }
 
         ul {
             list-style-type: none;
             padding: 0;
         }
+
         ul li {
             margin: 0.5rem 0;
             padding: 1rem;
@@ -102,6 +110,7 @@ $conn->query("UPDATE student SET admin_notified = 1 WHERE is_approved = 0 AND ad
             justify-content: space-between;
             align-items: center;
         }
+
         ul li:hover {
             background: #f1f3f5;
         }
@@ -148,16 +157,21 @@ $conn->query("UPDATE student SET admin_notified = 1 WHERE is_approved = 0 AND ad
             flex-direction: column;
             gap: 1rem;
         }
+
         form label {
             margin-bottom: 0.2rem;
             font-weight: bold;
         }
-        form input, form select, form button {
+
+        form input,
+        form select,
+        form button {
             padding: 0.7rem;
             border: 1px solid #ced4da;
             border-radius: 5px;
             font-size: 1rem;
         }
+
         #fields .field {
             margin-bottom: 1rem;
             background: #f8f9fa;
@@ -165,6 +179,7 @@ $conn->query("UPDATE student SET admin_notified = 1 WHERE is_approved = 0 AND ad
             border: 1px solid #e9ecef;
             border-radius: 5px;
         }
+
         #sendModal {
             position: fixed;
             top: 50%;
@@ -179,14 +194,17 @@ $conn->query("UPDATE student SET admin_notified = 1 WHERE is_approved = 0 AND ad
             width: 90%;
             max-width: 500px;
         }
+
         #sendModal h3 {
             margin-top: 0;
             margin-bottom: 1rem;
             color: #007bff;
         }
+
         #sendModal button {
             margin-top: 1rem;
         }
+
         #overlay {
             position: fixed;
             top: 0;
@@ -197,6 +215,7 @@ $conn->query("UPDATE student SET admin_notified = 1 WHERE is_approved = 0 AND ad
             display: none;
             z-index: 999;
         }
+
         footer {
             text-align: center;
             padding: 1rem;
@@ -204,72 +223,73 @@ $conn->query("UPDATE student SET admin_notified = 1 WHERE is_approved = 0 AND ad
             color: #6c757d;
             border-top: 1px solid #e9ecef;
         }
-.sendbtn {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 0.5rem;
-    border-radius: 50%;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    margin-left: 10px; /* Spacing between buttons */
-}
 
-.sendbtn:hover {
-    background-color: #0056b3;
-    transform: scale(1.1); /* Slight zoom on hover */
-}
+        .sendbtn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 50%;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            margin-left: 10px;
+        }
 
-.deletebtn {
-    background-color: #dc3545;
-    color: white;
-    border: none;
-    padding: 0.5rem 0.75rem;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1rem;
-    margin-left: 10px; /* Spacing between buttons */
-    transition: background-color 0.3s ease, transform 0.2s ease;
-}
+        .sendbtn:hover {
+            background-color: #0056b3;
+            transform: scale(1.1);
+        }
 
-.deletebtn:hover {
-    background-color: #c82333;
-    transform: scale(1.1); /* Slight zoom on hover */
-}
+        .deletebtn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 0.5rem 0.75rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-left: 10px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
 
-li {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 10px;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    background-color: #f9f9f9;
-    transition: box-shadow 0.2s ease;
-}
+        .deletebtn:hover {
+            background-color: #c82333;
+            transform: scale(1.1);
+        }
 
-li:hover {
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
+        li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            transition: box-shadow 0.2s ease;
+        }
 
-a {
-    text-decoration: none;
-    color: #007bff;
-    font-weight: 600;
-    flex-grow: 1; /* Ensures link stretches */
-}
+        li:hover {
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
 
-a:hover {
-    text-decoration: underline;
-}
+        a {
+            text-decoration: none;
+            color: #007bff;
+            font-weight: 600;
+            flex-grow: 1;
+        }
 
-#formList {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-}
+        a:hover {
+            text-decoration: underline;
+        }
+
+        #formList {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
 
 
         @media (max-width: 768px) {
@@ -277,71 +297,73 @@ a:hover {
                 width: 100%;
                 height: auto;
             }
+
             .content {
                 width: 100%;
             }
+
             main {
                 flex-direction: column;
             }
         }
-#studentSearch {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 14px;
-}
 
-.student-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    max-height: 300px; /* Add scroll if the list is long */
-    overflow-y: auto;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
+        #studentSearch {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
 
-.student-list li {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    border-bottom: 1px solid #f1f1f1;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
+        .student-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
 
-.student-list li:hover {
-    background-color: #f9f9f9;
-}
+        .student-list li {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #f1f1f1;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
 
-.student-list label {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    width: 100%;
-}
+        .student-list li:hover {
+            background-color: #f9f9f9;
+        }
 
-.profile-image {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    margin-right: 10px;
-}
+        .student-list label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            width: 100%;
+        }
 
-input[type="radio"] {
-    margin-right: 10px;
-}
+        .profile-image {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
 
-.student-name {
-    font-size: 14px;
-    color: #333;
-}
+        input[type="radio"] {
+            margin-right: 10px;
+        }
 
-
+        .student-name {
+            font-size: 14px;
+            color: #333;
+        }
     </style>
 </head>
+
 <body>
     <main>
         <div class="sidebar">
@@ -349,20 +371,20 @@ input[type="radio"] {
             <h2>Available Forms</h2>
             <input type="text" id="searchInput" placeholder="Search forms..." onkeyup="liveSearch()">
             <ul id="formList">
-    <?php foreach ($forms as $form): ?>
-    <li>
-        <a href="view_form.php?form_id=<?= $form['id']; ?>"><?= htmlspecialchars($form['form_name']); ?></a>
-        <button class="sendbtn" onclick="showSendModal(<?= $form['id']; ?>)"><i class="bi bi-send-fill"></i></button>
-        <form action="delete_form.php" method="POST" style="display: inline;">
-            <input type="hidden" name="form_id" value="<?= $form['id']; ?>">
-            <button type="submit" class="deletebtn" onclick="return confirm('Are you sure you want to delete this form?')">
-                <i class="bi bi-trash-fill"></i>
-            </button>
-        </form>
-    </li>
-<?php endforeach; ?>
+                <?php foreach ($forms as $form): ?>
+                    <li>
+                        <a href="view_form.php?form_id=<?= $form['id']; ?>"><?= htmlspecialchars($form['form_name']); ?></a>
+                        <button class="sendbtn" onclick="showSendModal(<?= $form['id']; ?>)"><i class="bi bi-send-fill"></i></button>
+                        <form action="delete_form.php" method="POST" style="display: inline;">
+                            <input type="hidden" name="form_id" value="<?= $form['id']; ?>">
+                            <button type="submit" class="deletebtn" onclick="return confirm('Are you sure you want to delete this form?')">
+                                <i class="bi bi-trash-fill"></i>
+                            </button>
+                        </form>
+                    </li>
+                <?php endforeach; ?>
 
-</ul>
+            </ul>
         </div>
         <div class="content">
             <section>
@@ -370,7 +392,7 @@ input[type="radio"] {
                 <form id="createForm" method="POST" action="create_form.php">
                     <div class="button-container">
                         <button type="button" class="fieldBtn" onclick="addField()"><i class="bi bi-clipboard2-plus-fill"></i></button>
-                        <button type="submit" class="createBtn" >Create Form</button>
+                        <button type="submit" class="createBtn">Create Form</button>
                     </div>
                     <label for="form_name">Form Name:</label>
                     <input type="text" name="form_name" id="form_name" required><br><br>
@@ -381,51 +403,46 @@ input[type="radio"] {
     </main>
 
 
-<div id="overlay"></div>
-<div id="sendModal">
-    <button onclick="closeSendModal()"><i class="bi bi-x-circle-fill"></i></button>
-    <h3>Send Form to Student</h3>
-    <form method="POST" action="send_form.php">
-        <input type="hidden" name="form_id" id="modalFormId">
+    <div id="overlay"></div>
+    <div id="sendModal">
+        <button onclick="closeSendModal()"><i class="bi bi-x-circle-fill"></i></button>
+        <h3>Send Form to Student</h3>
+        <form method="POST" action="send_form.php">
+            <input type="hidden" name="form_id" id="modalFormId">
 
-        <label for="studentSearch">Search Students:</label>
-        <input type="text" id="studentSearch" placeholder="Type to search..." onkeyup="filterStudentList()">
+            <label for="studentSearch">Search Students:</label>
+            <input type="text" id="studentSearch" placeholder="Type to search..." onkeyup="filterStudentList()">
 
-        <label for="student_id">Select a Student:</label>
-        <ul class="student-list" id="studentList">
-            <?php if (!empty($approved_students)): ?>
-                <?php foreach ($approved_students as $student): ?>
-                    <li>
-                        <label>
-                            <input type="radio" name="student_id" value="<?= htmlspecialchars($student['id']); ?>" required>
-                            <img src="../images-data/<?= htmlspecialchars($student['image']); ?>" alt="Profile Image" class="profile-image">
-                            <span class="student-name"><?= htmlspecialchars($student['firstname']); ?></span>
-                        </label>
-                    </li>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <li>No approved students available. Please approve students first.</li>
-            <?php endif; ?>
-        </ul>
+            <label for="student_id">Select a Student:</label>
+            <ul class="student-list" id="studentList">
+                <?php if (!empty($approved_students)): ?>
+                    <?php foreach ($approved_students as $student): ?>
+                        <li>
+                            <label>
+                                <input type="radio" name="student_id" value="<?= htmlspecialchars($student['id']); ?>" required>
+                                <img src="../images-data/<?= htmlspecialchars($student['image']); ?>" alt="Profile Image" class="profile-image">
+                                <span class="student-name"><?= htmlspecialchars($student['firstname']); ?></span>
+                            </label>
+                        </li>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <li>No approved students available. Please approve students first.</li>
+                <?php endif; ?>
+            </ul>
 
-        <br><br>
-        <button type="submit">Send Form</button>
-    </form>
-</div>
-
-
-
-
+            <br><br>
+            <button type="submit">Send Form</button>
+        </form>
+    </div>
 
     <script>
-        
-    let fieldCount = 0;
+        let fieldCount = 0;
 
-function addField() {
-    const fieldsDiv = document.getElementById('fields');
-    const fieldId = `field_${fieldCount}`; 
+        function addField() {
+            const fieldsDiv = document.getElementById('fields');
+            const fieldId = `field_${fieldCount}`;
 
-    const fieldHTML = `
+            const fieldHTML = `
     <center>
         <div class="field" id="${fieldId}">
             <label>Field Name:</label>
@@ -442,56 +459,57 @@ function addField() {
         </div>
         </center>
     `;
-    fieldsDiv.insertAdjacentHTML('beforeend', fieldHTML);
-    fieldCount++;
-}
-function filterStudentList() {
-        const searchInput = document.getElementById("studentSearch").value.toLowerCase();
-        const studentList = document.getElementById("studentList");
-        const students = studentList.getElementsByTagName("li");
+            fieldsDiv.insertAdjacentHTML('beforeend', fieldHTML);
+            fieldCount++;
+        }
 
-        for (let i = 0; i < students.length; i++) {
-            const studentName = students[i].getElementsByClassName("student-name")[0].innerText.toLowerCase();
+        function filterStudentList() {
+            const searchInput = document.getElementById("studentSearch").value.toLowerCase();
+            const studentList = document.getElementById("studentList");
+            const students = studentList.getElementsByTagName("li");
 
-            if (studentName.includes(searchInput)) {
-                students[i].style.display = "flex"; // Show matching student
-            } else {
-                students[i].style.display = "none"; // Hide non-matching student
+            for (let i = 0; i < students.length; i++) {
+                const studentName = students[i].getElementsByClassName("student-name")[0].innerText.toLowerCase();
+
+                if (studentName.includes(searchInput)) {
+                    students[i].style.display = "flex";
+                } else {
+                    students[i].style.display = "none";
+                }
             }
         }
-    }
 
-function removeField(fieldId) {
-    const field = document.getElementById(fieldId);
-    if (field) {
-        field.remove();
-    }
-}
-    document.getElementById('student_id').addEventListener('change', function () {
-        const selectedOption = this.options[this.selectedIndex];
-        const studentImage = selectedOption.getAttribute('data-image');
-        const studentName = selectedOption.getAttribute('data-name');
-
-        if (studentImage && studentName) {
-            document.getElementById('studentImage').src = studentImage;
-            document.getElementById('studentName').textContent = studentName;
-            document.getElementById('studentPreview').style.display = 'block';
-        } else {
-            document.getElementById('studentPreview').style.display = 'none';
+        function removeField(fieldId) {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.remove();
+            }
         }
-    });
+        document.getElementById('student_id').addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const studentImage = selectedOption.getAttribute('data-image');
+            const studentName = selectedOption.getAttribute('data-name');
+
+            if (studentImage && studentName) {
+                document.getElementById('studentImage').src = studentImage;
+                document.getElementById('studentName').textContent = studentName;
+                document.getElementById('studentPreview').style.display = 'block';
+            } else {
+                document.getElementById('studentPreview').style.display = 'none';
+            }
+        });
 
 
-function liveSearch() {
-    const searchQuery = document.getElementById('searchInput').value;
+        function liveSearch() {
+            const searchQuery = document.getElementById('searchInput').value;
 
-    fetch(`live_search.php?search=${encodeURIComponent(searchQuery)}`)
-        .then(response => response.text())
-        .then(html => {
-            document.getElementById('formList').innerHTML = html;
-        })
-        .catch(error => console.error('Error:', error));
-}
+            fetch(`live_search.php?search=${encodeURIComponent(searchQuery)}`)
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('formList').innerHTML = html;
+                })
+                .catch(error => console.error('Error:', error));
+        }
 
 
         function showSendModal(formId) {
@@ -504,13 +522,11 @@ function liveSearch() {
             document.getElementById('sendModal').style.display = 'none';
             document.getElementById('overlay').style.display = 'none';
         }
-
-
-        
     </script>
 
     <footer>
         <p>&copy; 2025 Admin Dashboard. All Rights Reserved.</p>
     </footer>
 </body>
+
 </html>

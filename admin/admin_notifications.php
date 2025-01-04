@@ -7,7 +7,6 @@ if (!$notifications) {
     die("Error fetching notifications: " . $conn->error);
 }
 
-// Fetch unapproved students along with their emails
 $unapproved_users = $conn->query("
     SELECT 
         student.id AS student_id, 
@@ -27,7 +26,7 @@ if (!$unapproved_users) {
     die("Error fetching unapproved users: " . $conn->error);
 }
 
-// Mark notifications as read
+
 $mark_read = $conn->query("UPDATE notifications SET is_read = 1 WHERE is_read = 0");
 
 if (!$mark_read) {
@@ -37,10 +36,12 @@ if (!$mark_read) {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Admin Notifications</title>
 </head>
+
 <body>
     <h1>Admin Notifications</h1>
 
@@ -57,40 +58,40 @@ if (!$mark_read) {
 
     <h2>Unapproved Students</h2>
     <?php if ($unapproved_users->num_rows > 0): ?>
-       <form method="POST" action="approve_users.php">
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Approve</th>
-                <th>Reject</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php while ($student = $unapproved_users->fetch_assoc()): ?>
-                <tr>
-                    <td><?= htmlspecialchars($student['firstname']); ?></td>
-                    <td><?= htmlspecialchars($student['email']); ?></td>
-                    <td>
-                        <input type="checkbox" name="approve_users[]" value="<?= $student['student_id']; ?>">
-                    </td>
-                    <td>
-                        <input type="checkbox" name="reject_users[]" value="<?= $student['student_id']; ?>">
-                    </td>
-                </tr>
-            <?php endwhile; ?>
-        </tbody>
-    </table>
-    <button type="submit" name="action" value="approve">Approve Selected</button>
-    <button type="submit" name="action" value="reject">Reject Selected</button>
-</form>
+        <form method="POST" action="approve_users.php">
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Approve</th>
+                        <th>Reject</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php while ($student = $unapproved_users->fetch_assoc()): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($student['firstname']); ?></td>
+                            <td><?= htmlspecialchars($student['email']); ?></td>
+                            <td>
+                                <input type="checkbox" name="approve_users[]" value="<?= $student['student_id']; ?>">
+                            </td>
+                            <td>
+                                <input type="checkbox" name="reject_users[]" value="<?= $student['student_id']; ?>">
+                            </td>
+                        </tr>
+                    <?php endwhile; ?>
+                </tbody>
+            </table>
+            <button type="submit" name="action" value="approve">Approve Selected</button>
+            <button type="submit" name="action" value="reject">Reject Selected</button>
+        </form>
 
     <?php else: ?>
         <p>No students awaiting approval.</p>
     <?php endif; ?>
 
-    
+
 </body>
+
 </html>
-         
